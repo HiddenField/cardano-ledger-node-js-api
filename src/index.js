@@ -23,5 +23,6 @@ if (isNode) ledger.comm_node = require('./ledger-comm-node');
 else ledger.comm_u2f = require('./ledger-comm-u2f');
 ledger.btc = require('./ledger-btc');
 ledger.eth = require('./ledger-eth');
+ledger.ada = require('./ledger-ada');
 
 module.exports = ledger;
