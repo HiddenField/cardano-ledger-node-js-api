@@ -51,6 +51,26 @@ LedgerAda.prototype.getWalletPublicKey_async = function(path) {
 	});
 }
 
+LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
+	var buffer = Buffer.alloc(4);
+	buffer[0] = 0x80;
+	buffer[1] = 0x0C;
+	buffer[2] = 0x00;
+	buffer[3] = 0x02;
+
+	return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
+		var result = {};
+		response = Buffer.from(response, 'hex');
+		var publicKeyLength = response[0];
+		var addressLength = response[1 + publicKeyLength];
+		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
+		result['bitcoinAddress'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + addressLength).toString('ascii');
+		result['chainCode'] = response.slice(1 + publicKeyLength + 1 + addressLength, 1 + publicKeyLength + 1 + addressLength + 32).toString('hex');
+		return result;
+
+	});
+}
+
 
 LedgerAda.MAX_SCRIPT_BLOCK = 50;
 LedgerAda.DEFAULT_LOCKTIME = 0;

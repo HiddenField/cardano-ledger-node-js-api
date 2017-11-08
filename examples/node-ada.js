@@ -11,6 +11,10 @@ ledger
 		     function(result) { console.log(result);}).fail(
 		     function(error) { console.log(error); });
 
+		ada.getRandomWalletPublicKey_async().then(
+		 		     function(result) { console.log(result);}).fail(
+		 		     function(error) { console.log(error); });
+
 	})
 	.catch(function(reason) {
 		console.log('An error occured: ', reason);
