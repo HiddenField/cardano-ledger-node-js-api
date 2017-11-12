@@ -44,8 +44,7 @@ LedgerAda.prototype.getWalletPublicKey_async = function(path) {
 		var publicKeyLength = response[0];
 		var addressLength = response[1 + publicKeyLength];
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-		result['bitcoinAddress'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + addressLength).toString('ascii');
-		result['chainCode'] = response.slice(1 + publicKeyLength + 1 + addressLength, 1 + publicKeyLength + 1 + addressLength + 32).toString('hex');
+		result['chainCode'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + 32).toString('hex');
 		return result;
 
 	});
@@ -64,8 +63,7 @@ LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
 		var publicKeyLength = response[0];
 		var addressLength = response[1 + publicKeyLength];
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-		result['bitcoinAddress'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + addressLength).toString('ascii');
-		result['chainCode'] = response.slice(1 + publicKeyLength + 1 + addressLength, 1 + publicKeyLength + 1 + addressLength + 32).toString('hex');
+		result['chainCode'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + 32).toString('hex');
 		return result;
 
 	});
