@@ -17,6 +17,19 @@
 
 'use strict';
 
+/*
+ * ADA APDU I/O Buffer Structure
+ *
+ * buffer[0] = APDU IDENTIFIER
+ * buffer[1] = INSTRUCITON NO
+ * buffer[2] = P1 VALUE
+ * buffer[3] = P2 VALUE
+ * buffer[4] = CDATA_LENGTH
+ * buffer[5] = PATH_LENGTH
+ * buffer[...] = DATA
+ * buffer[END] = 0x9000 OKAY
+ */
+
 var Q = require('q');
 var utils = require('./utils');
 
@@ -43,31 +56,67 @@ LedgerAda.prototype.getWalletPublicKey_async = function(path) {
 		response = Buffer.from(response, 'hex');
 		var publicKeyLength = response[0];
 		var addressLength = response[1 + publicKeyLength];
+		result['success'] = true;
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-		result['chainCode'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + 32).toString('hex');
+		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
 		return result;
 
 	});
 }
 
 LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
-	var buffer = Buffer.alloc(4);
+	var buffer = Buffer.alloc(6);
 	buffer[0] = 0x80;
 	buffer[1] = 0x0C;
 	buffer[2] = 0x00;
 	buffer[3] = 0x02;
+	buffer[4] = 0x01;
+	buffer[5] = 0x00;
 
 	return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
 		var result = {};
 		response = Buffer.from(response, 'hex');
 		var publicKeyLength = response[0];
 		var addressLength = response[1 + publicKeyLength];
+		result['success'] = true;
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-		result['chainCode'] = response.slice(1 + publicKeyLength + 1, 1 + publicKeyLength + 1 + 32).toString('hex');
+		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
 		return result;
 
 	});
 }
+
+LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
+
+	if(isNaN(address_index)) {
+		var result = {};
+		result['success'] = false;
+		result['error'] = "Address index is not a number."
+		return result;
+	}
+
+	var buffer = Buffer.alloc(10);
+	buffer[0] = 0x80;
+	buffer[1] = 0x0C;
+	buffer[2] = 0x00;
+	buffer[3] = 0x02;
+	buffer[4] = 0x05;
+	buffer[5] = 0x01;
+	buffer.writeUInt32BE(address_index, 6);
+
+	return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
+		var result = {};
+		response = Buffer.from(response, 'hex');
+		var publicKeyLength = response[0];
+		var addressLength = response[1 + publicKeyLength];
+		result['success'] = true;
+		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
+		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
+		return result;
+
+	});
+}
+
 
 
 LedgerAda.MAX_SCRIPT_BLOCK = 50;

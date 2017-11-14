@@ -3,17 +3,24 @@ ledger
 	.comm_node
 	.create_async()
 	.then(function(comm) {
-		console.log(comm.device.getDeviceInfo());
+			console.log(comm.device.getDeviceInfo());
 
-		var ada = new ledger.ada(comm);
+			var ada = new ledger.ada(comm);
 
-		ada.getWalletPublicKey_async("44'/1815'/0'").then(
-		     function(result) { console.log(result);}).fail(
-		     function(error) { console.log(error); });
+			ada.getWalletPublicKey_async("44'/1815'/0'/0'/0'").then(
+			     function(result) { console.log(result); }).fail(
+			     function(error) { console.log(error); });
 
-		ada.getRandomWalletPublicKey_async().then(
-		 		     function(result) { console.log(result);}).fail(
-		 		     function(error) { console.log(error); });
+			ada.getRandomWalletPublicKey_async().then(
+			 		     function(result) { console.log(result);}).fail(
+			 		     function(error) { console.log(error); });
+
+
+		  var testAddress = 0xFFFFFFFF;
+
+			ada.getWalletPublicKeyFrom_async(testAddress).then(
+			 		     function(result) { console.log(result);}).fail(
+			 		     function(error) { console.log(error); });
 
 	})
 	.catch(function(reason) {
