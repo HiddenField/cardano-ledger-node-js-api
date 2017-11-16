@@ -55,7 +55,6 @@ LedgerAda.prototype.getWalletPublicKey_async = function(path) {
 		var result = {};
 		response = Buffer.from(response, 'hex');
 		var publicKeyLength = response[0];
-		var addressLength = response[1 + publicKeyLength];
 		result['success'] = true;
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
 		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
@@ -77,7 +76,6 @@ LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
 		var result = {};
 		response = Buffer.from(response, 'hex');
 		var publicKeyLength = response[0];
-		var addressLength = response[1 + publicKeyLength];
 		result['success'] = true;
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
 		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
@@ -87,6 +85,9 @@ LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
 }
 
 LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
+
+	// TODO: Test if the address index is above 0x80000000, and if less, throw an error.
+	// Nano S can only derive hardened addresses on ED25519 curve.
 
 	if(isNaN(address_index)) {
 		var result = {};
@@ -108,10 +109,28 @@ LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
 		var result = {};
 		response = Buffer.from(response, 'hex');
 		var publicKeyLength = response[0];
-		var addressLength = response[1 + publicKeyLength];
 		result['success'] = true;
 		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
 		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
+		return result;
+
+	});
+}
+
+
+
+LedgerAda.prototype.getWalletIndex_async = function() {
+
+	var buffer = Buffer.alloc(2);
+	buffer[0] = 0x80;
+	buffer[1] = 0x0E;
+
+	return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
+		var result = {};
+		response = Buffer.from(response, 'hex');
+		var walletIndexLength = response[0];
+		result['success'] = true;
+		result['walletIndex'] = response.slice(1, 1 + walletIndexLength).toString('hex');
 		return result;
 
 	});
