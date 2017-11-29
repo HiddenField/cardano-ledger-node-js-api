@@ -137,10 +137,59 @@ LedgerAda.prototype.getWalletIndex_async = function() {
 }
 
 
+LedgerAda.prototype.signTransaction_async = function(txHex) {
 
-LedgerAda.MAX_SCRIPT_BLOCK = 50;
-LedgerAda.DEFAULT_LOCKTIME = 0;
-LedgerAda.DEFAULT_SEQUENCE = 0xffffffff;
-LedgerAda.SIGHASH_ALL = 1;
+	var apdus = [];
+	var response = [];
+	var offset = 0;
+	var headerLength = 9;
+	var tx = new Buffer(txHex, 'hex');
+	var self = this;
+
+	console.log("Transaction Length[" + tx.length + "]")
+	console.log("Transaction Buffer[" + tx.toString('hex') + "]");
+
+	while (offset != tx.length) {
+
+		var isSingleAPDU = (offset + maxChunkSize) > tx.length;
+		var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+		var chunkSize = (isSingleAPDU ?	tx.length - offset : maxChunkSize);
+
+		console.log("Data Size[" + chunkSize + "]");
+
+		var buffer = new Buffer(headerLength + chunkSize);
+		// Header
+		buffer[0] = 0x80;
+		buffer[1] = 0x06;
+		buffer[2] = (offset == 0 ? 0x01 : 0x02);
+		buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
+		buffer[4] = 0x00;
+		buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 5);
+		// Body
+		tx.copy(buffer, headerLength, offset, offset + chunkSize);
+		apdus.push(buffer.toString('hex'));
+		console.log("APDU Buffer[" + buffer.toString('hex') + "]");
+
+		offset += chunkSize;
+
+	}
+
+	return utils.foreach(apdus, function(apdu) {
+		return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
+			var result = {};
+			response = Buffer.from(apduResponse, 'hex');
+			result['success'] = true;
+			result['transactionLength'] = response.slice(1, 4).toString('hex');
+			result['dataLength'] = response.slice(5, 8).toString('hex');
+			result['transactionOffset'] = response.slice(9, 12).toString('hex');
+			console.log("Response["+ apduResponse + "]");
+			return result;
+		})
+	});
+}
+
+
+LedgerAda.MAX_CHUNK_SIZE = 64;
+LedgerAda.MAX_TX_LENGTH = 2000;
 
 module.exports = LedgerAda;
