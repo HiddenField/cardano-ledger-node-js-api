@@ -175,16 +175,93 @@ LedgerAda.prototype.signTransaction_async = function(txHex) {
 	}
 
 	return utils.foreach(apdus, function(apdu) {
-		return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
-			var result = {};
-			response = Buffer.from(apduResponse, 'hex');
-			result['success'] = true;
-			result['transactionLength'] = response.slice(1, 4).toString('hex');
-			result['dataLength'] = response.slice(5, 8).toString('hex');
-			result['transactionOffset'] = response.slice(9, 12).toString('hex');
-			console.log("Response["+ apduResponse + "]");
-			return result;
-		})
+			return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
+					var result = {};
+					result['success'] = true;
+					if(apduResponse.length > 2) {
+							response = Buffer.from(apduResponse, 'hex');
+							result['success'] = true;
+							var offset = 2;
+							var index = 0;
+							while (offset < (apduResponse.length/2) - 2) {
+									var tx = {};
+									// Set index
+									tx.index = index;
+									// Read amount
+									tx.checksum = response.slice(offset, offset + 4).toString('hex');
+									offset += 5;
+									// Read address
+									tx.amount = response.slice(offset, offset + 8).toString('hex');
+									offset += 9;
+									// Check if at the end
+									result['tx' + index ] = tx;
+									index++;
+									//result['dataLength'] = response.slice(5, 8).toString('hex');
+									//result['transactionOffset'] = response.slice(9, 12).toString('hex');
+									//console.log("Response["+ apduResponse + "] Offset[" + offset + "] Length[" + apduResponse.length + "]");
+							}
+					}
+					return result;
+			})
+	});
+}
+
+
+
+LedgerAda.prototype.hashTransaction_async = function(txHex) {
+
+	var apdus = [];
+	var response = [];
+	var offset = 0;
+	var headerLength = 9;
+	var tx = new Buffer(txHex, 'hex');
+	var self = this;
+
+	console.log("Transaction Length[" + tx.length + "]")
+	console.log("Transaction Buffer[" + tx.toString('hex') + "]");
+
+	while (offset != tx.length) {
+
+		var isSingleAPDU = (offset + maxChunkSize) > tx.length;
+		var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+		var chunkSize = (isSingleAPDU ?	tx.length - offset : maxChunkSize);
+
+		console.log("Data Size[" + chunkSize + "]");
+
+		var buffer = new Buffer(headerLength + chunkSize);
+		// Header
+		buffer[0] = 0x80;
+		buffer[1] = 0x04;
+		buffer[2] = (offset == 0 ? 0x01 : 0x02);
+		buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
+		buffer[4] = 0x00;
+		buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 5);
+		// Body
+		tx.copy(buffer, headerLength, offset, offset + chunkSize);
+		apdus.push(buffer.toString('hex'));
+		console.log("APDU Buffer[" + buffer.toString('hex') + "]");
+
+		offset += chunkSize;
+
+	}
+
+	return utils.foreach(apdus, function(apdu) {
+			return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
+					var result = {};
+					result['success'] = true;
+					result['respLength'] = apduResponse.toString('hex').length;
+					result['resp'] = apduResponse.toString('hex');
+					if(apduResponse.length > 4) {
+							response = Buffer.from(apduResponse, 'hex');
+							var offset = 2;
+							// Read 256bit (32 byte) hash
+							//result['txLength'] = apduResponse.slice(offset, offset + 16).toString('hex');
+							//offset += 16;
+							result['tx'] = apduResponse.slice(offset, offset + 64).toString('hex');
+					}
+
+					return result;
+			})
 	});
 }
 
