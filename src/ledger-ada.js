@@ -146,14 +146,18 @@ LedgerAda.prototype.signTransaction_async = function(txHex) {
 	var tx = new Buffer(txHex, 'hex');
 	var self = this;
 
+	var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+	var isSingleAPDU = tx.length < maxChunkSize;
+
 	console.log("Transaction Length[" + tx.length + "]")
 	console.log("Transaction Buffer[" + tx.toString('hex') + "]");
+	console.log("Is Single APDU[" + isSingleAPDU + "]")
+	console.log("Max Chunk Size[" + maxChunkSize + "]");
 
 	while (offset != tx.length) {
 
-		var isSingleAPDU = (offset + maxChunkSize) > tx.length;
-		var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
-		var chunkSize = (isSingleAPDU ?	tx.length - offset : maxChunkSize);
+		var isLastAPDU = tx.length - offset < maxChunkSize;
+		var chunkSize = (isLastAPDU ?	tx.length - offset : maxChunkSize);
 
 		console.log("Data Size[" + chunkSize + "]");
 
@@ -217,14 +221,18 @@ LedgerAda.prototype.hashTransaction_async = function(txHex) {
 	var tx = new Buffer(txHex, 'hex');
 	var self = this;
 
+  var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+	var isSingleAPDU = tx.length < maxChunkSize;
+
 	console.log("Transaction Length[" + tx.length + "]")
 	console.log("Transaction Buffer[" + tx.toString('hex') + "]");
+	console.log("Is Single APDU[" + isSingleAPDU + "]")
+	console.log("Max Chunk Size[" + maxChunkSize + "]");
 
 	while (offset != tx.length) {
 
-		var isSingleAPDU = (offset + maxChunkSize) > tx.length;
-		var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
-		var chunkSize = (isSingleAPDU ?	tx.length - offset : maxChunkSize);
+		var isLastAPDU = tx.length - offset < maxChunkSize;
+		var chunkSize = (isLastAPDU ?	tx.length - offset : maxChunkSize);
 
 		console.log("Data Size[" + chunkSize + "]");
 
@@ -233,7 +241,7 @@ LedgerAda.prototype.hashTransaction_async = function(txHex) {
 		buffer[0] = 0x80;
 		buffer[1] = 0x04;
 		buffer[2] = (offset == 0 ? 0x01 : 0x02);
-		buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
+		buffer[3] = (isSingleAPDU ? 0x00 : 0x02);
 		buffer[4] = 0x00;
 		buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 5);
 		// Body
