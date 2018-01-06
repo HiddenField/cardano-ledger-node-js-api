@@ -136,6 +136,37 @@ LedgerAda.prototype.getWalletIndex_async = function() {
 	});
 }
 
+LedgerAda.prototype.testBase58Encode_async = function(txHex) {
+
+	var headerLength = 9;
+	var tx = new Buffer(txHex, 'hex');
+	var offset = 0;
+
+	console.log("Transaction Length[" + tx.length + "]")
+
+	var buffer = Buffer.alloc(headerLength + tx.length);
+	buffer[0] = 0x80;
+	buffer[1] = 0x08;
+	buffer[2] = 0x00;
+	buffer[3] = 0x00;
+	buffer[4] = 0x00;
+	buffer.writeUInt32BE( tx.length, 5);
+	// Body
+	tx.copy(buffer, headerLength, offset, offset + tx.length);
+
+	return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
+		var result = {};
+		response = Buffer.from(response, 'hex');
+		var encodedAddressLength = response[0];
+		result['success'] = true;
+		result['Response'] = response.toString('hex');
+		result['Address Length'] = encodedAddressLength;
+		result['encodedAddress'] = response.slice(1, 1 + encodedAddressLength).toString();
+		return result;
+
+	});
+}
+
 
 LedgerAda.prototype.signTransaction_async = function(txHex) {
 
@@ -149,7 +180,7 @@ LedgerAda.prototype.signTransaction_async = function(txHex) {
 	var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
 	var isSingleAPDU = tx.length < maxChunkSize;
 
-	console.log("Transaction Length[" + tx.length + "]")
+	console.log("Transaction Length[" + tx.length + "]");
 	console.log("Transaction Buffer[" + tx.toString('hex') + "]");
 	console.log("Is Single APDU[" + isSingleAPDU + "]")
 	console.log("Max Chunk Size[" + maxChunkSize + "]");
