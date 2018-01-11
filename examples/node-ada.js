@@ -10,6 +10,10 @@ ledger
 			// Blake2b Hashed Transaction
 			var testTX2 =
 			"839f8200d8185826825820de3151a2d9cd8e2bbe292a6153d679d123892ddcfbee869c4732a5c504a7554d19386cff9f8282d818582183581caeb153a5809a084507854c9f3e5795bcca89781f9c386d957748cd42a0001a87236a1f1b00780aa6c7d62110ffa0"
+			// Address Single I/O test case
+			var testTX22 =
+			"839f8200d8185826825820e981442c2be40475bb42193ca35907861d90715854de6fcba767b98f1789b51219439aff9f8282d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc861b0037699e3ea6d064ffa0";
+
 
 			// Random Short Hash Data
 			var testTX3 =
@@ -71,16 +75,16 @@ ledger
 
 
 
-
+*/
 			console.log("\n\n\nSTART - Signing Transaction");
-			ada.signTransaction_async(testTX).then(
+			ada.signTransaction_async(testTX22).then(
 					function(result) {
 						  console.log(result);
 							console.log("END - Signing Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
 
-
+/*
 			console.log("\n\n\nSTART - Hashing Transaction");
 			ada.hashTransaction_async(testTX2).then(
 					function(result) {
@@ -89,7 +93,7 @@ ledger
 					}).fail(
 					function(error) { console.log(error); });
 */
-
+/*
 			console.log("\n\n\nSTART - Test Encoding Address");
 			ada.testBase58Encode_async(rawTestAddress1).then(
 					function(result) {
@@ -97,7 +101,7 @@ ledger
 							console.log("END - Test Encoding Address\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-
+*/
 
 	})
 	.catch(function(reason) {
