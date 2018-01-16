@@ -16,32 +16,43 @@ function getLedger() {
 }
 
 describe('Cardano ADA', () => {
-  it('getWalletPublicKey_async', (done) => { 
-      getLedger()
-        .then((ledger) => { 
-          // TODO
-          done();
-        })
-        .catch(error => done(error));
+  describe('getWalletPublicKey_async', () => {
+    it('Should get public key', (done) => { 
+        getLedger()
+          .then((ledger) => { 
+            // TODO
+            done();
+          })
+          .catch(error => done(error));
+    });
+
+    it('Should fail with incorrect path', (done) => { 
+        getLedger()
+          .then((ledger) => { 
+            // TODO
+            done();
+          })
+          .catch(error => done(error));
+    });
   });
   
-  it.skip('getRandomWalletPublicKey_async', (done) => { 
+  describe('getRandomWalletPublicKey_async', () => { 
     // TODO
   });
   
-  it.skip('getWalletPublicKeyFrom_async', (done) => {
+  describe('getWalletPublicKeyFrom_async', () => {
     // TODO
   });
   
-  it.skip('getWalletIndex_async', (done) => {
+  describe('getWalletIndex_async', () => {
     // TODO
   });
   
-  it.skip('signTransaction_async', (done) => {
+  describe('signTransaction_async', () => {
     // TODO
   });
   
-  it.skip('hashTransaction_async', (done) => {
+  describe('hashTransaction_async', () => {
     // TODO
   });
 });
