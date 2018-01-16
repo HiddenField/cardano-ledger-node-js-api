@@ -12,7 +12,7 @@
     "Wallet",
     "HW.1",
     "Bitcoin",
-    "Ethereum",    
+    "Ethereum",
     "Hardware Wallet"
   ],
   "author": "Nicolas Bacca",
@@ -22,15 +22,18 @@
   },
   "homepage": "https://github.com/LedgerHQ/ledger-node-js-api",
   "dependencies": {
-	  "node-hid": "0.5.4",
-	  "q": "1.4.1"
+    "node-hid": "0.5.4",
+    "q": "1.4.1"
   },
   "devDependencies": {
     "browserify": "13.1.0",
+    "chai": "4.1.2",
+    "mocha": "4.1.0",
     "uglify-js": "2.7.3"
   },
   "scripts": {
     "test": "node test/tests-node.js",
+    "integration-test": "node_modules/.bin/mocha test/e2e",
     "browserify-test": "browserify --im --standalone runTests -o test/tests-browser.js test/tests-node.js",
     "browserify": "browserify --im --s=ledger -o browser/ledger.js src/index-browserify.js",
     "uglify": "uglifyjs -o browser/ledger.min.js browser/ledger.js",
@@ -40,4 +43,3 @@
     "node-hid": false
   }
 }
-
