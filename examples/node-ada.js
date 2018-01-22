@@ -15,6 +15,7 @@ ledger
 			"839f8200d8185826825820e981442c2be40475bb42193ca35907861d90715854de6fcba767b98f1789b51219439aff9f8282d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc861b0037699e3ea6d064ffa0";
 
 
+
 			// Random Short Hash Data
 			var testTX3 =
 			"839f8200d8185826825820de3151a2d9cd8e2bbe292a6153d679";
@@ -26,8 +27,9 @@ ledger
 
 
 			var ada = new ledger.ada(comm);
-			/*
-			ada.getWalletPublicKey_async("44'/1815'/0'").then(
+
+/*
+			ada.getWalletPublicKey_async("0'").then(
 		     function(result) {
 					 console.log("Deriving Wallet Recovery Passphrase");
 					 console.log(result);
@@ -75,7 +77,7 @@ ledger
 
 
 
-*/
+
 			console.log("\n\n\nSTART - Signing Transaction");
 			ada.signTransaction_async(testTX22).then(
 					function(result) {
@@ -84,7 +86,6 @@ ledger
 					}).fail(
 					function(error) { console.log(error); });
 
-/*
 			console.log("\n\n\nSTART - Hashing Transaction");
 			ada.hashTransaction_async(testTX2).then(
 					function(result) {
@@ -92,7 +93,9 @@ ledger
 							console.log("END - Hashing Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
+
 */
+
 /*
 			console.log("\n\n\nSTART - Test Encoding Address");
 			ada.testBase58Encode_async(rawTestAddress1).then(
@@ -101,6 +104,36 @@ ledger
 							console.log("END - Test Encoding Address\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
+
+
+*/
+			console.log("\n\n\nSTART - Set Transaction");
+			var paths = [512, 200, 16, 0, 324568];
+			ada.setTransaction_async(testTX2).then(
+					function(result) {
+							console.log(result);
+							console.log("END - Set Transaction\n\n\n");
+					}).fail(
+					function(error) { console.log(error); });
+
+/*
+			console.log("\n\n\nSTART - Send Signing Indexes");
+			var indexes = [512, 200, 16, 324568];
+			ada.setSigningIndexes_async(indexes).then(
+					function(result) {
+							console.log(result);
+							console.log("END - Send Signing Indexes\n\n\n");
+					}).fail(
+					function(error) { console.log(error); });
+
+			console.log("\n\n\nSTART - Signing with index");
+			ada.setSignTransaction_async(0).then(
+					function(result) {
+							console.log(result);
+							console.log("END - Signing Index\n\n\n");
+					}).fail(
+					function(error) { console.log(error); });
+
 */
 
 	})
