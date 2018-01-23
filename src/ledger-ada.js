@@ -331,8 +331,14 @@ LedgerAda.prototype.setTransaction_async = function(txHex) {
 	var response = [];
 	var offset = 0;
 	var headerLength = 9;
-	var tx = new Buffer(txHex, 'hex');
+	var tx = '';
 	var self = this;
+
+  try {
+    tx = new Buffer(txHex, 'hex');
+  } catch (error) {
+    return Q.reject(error);
+  }
 
 	var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
 	var isSingleAPDU = tx.length < maxChunkSize;
