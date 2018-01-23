@@ -1,5 +1,6 @@
 const { comm_node, ada } = require('../../src');
 const { expect } = require('chai');
+const { yellow } = require('chalk');
 
 /**
  * Convenience promisified function for retrieving the ADA Ledger.
@@ -13,6 +14,13 @@ function getLedger() {
       .then(ledger => resolve(ledger))
       .catch(error => reject(error));
   });
+}
+
+/**
+ * Convenience function for prompting user to interact with ledger device.
+ */
+function promptUser(message) {
+  console.log(yellow.bgBlack('\n LEDGER DEVICE ') + yellow(` ${message.toUpperCase()}\n`));
 }
 
 describe('Cardano ADA', () => {
@@ -82,25 +90,23 @@ describe('Cardano ADA', () => {
         .then((res) => {
           done('Accepted incomplete transaction');
         })
-        .catch((error) => {
-          done();
-        });
+        .catch((error) => done());
     });
   });
   
-  describe('getRandomWalletPublicKey_async', () => { 
-    // TODO
-  });
-  
-  describe('getWalletPublicKeyFrom_async', () => {
-    // TODO
-  });
-  
-  describe('getWalletIndex_async', () => {
-    // TODO
-  });
-  
-  describe('signTransaction_async', () => {
-    // TODO
+  describe('getWalletPublicKey_async', () => {
+    it('Should successfully get public key for path', (done) => {
+      getLedger()
+        .then((device) => {
+          ledger = device;
+          promptUser('Please accept public key request');
+          return ledger.getWalletPublicKey_async("44'/1815'/0'/0'/0'");
+        })
+        .then((res) => {
+          console.log(res);
+          done();
+        })
+        .catch((error) => done(error));
+    }).timeout(10000);
   });
 });
