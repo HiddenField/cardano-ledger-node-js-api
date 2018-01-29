@@ -35,8 +35,10 @@ ledger
 					 console.log(result);
 				 }).fail(
 		     function(error) { console.log(error); });
+*/
 
-			 ada.getWalletPublicKey_async("44'/1815'/0'/0'/0'").then(
+/*
+			 ada.getWalletPublicKey_async("44'/1815'/0'/512'").then(
  		     function(result) {
  					 console.log("Deriving Wallet Recovery Passphrase");
  					 console.log(result);
@@ -106,16 +108,16 @@ ledger
 					function(error) { console.log(error); });
 
 
-*/
+
 			console.log("\n\n\nSTART - Set Transaction");
 			var paths = [512, 200, 16, 0, 324568];
-			ada.setTransaction_async(testTX2).then(
+			ada.setTransaction_async(testTX).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Set Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-
+*/
 /*
 			console.log("\n\n\nSTART - Send Signing Indexes");
 			var indexes = [512, 200, 16, 324568];
@@ -125,7 +127,7 @@ ledger
 							console.log("END - Send Signing Indexes\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-
+*/
 			console.log("\n\n\nSTART - Signing with index");
 			ada.setSignTransaction_async(0).then(
 					function(result) {
@@ -134,7 +136,7 @@ ledger
 					}).fail(
 					function(error) { console.log(error); });
 
-*/
+
 
 	})
 	.catch(function(reason) {
