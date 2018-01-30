@@ -105,15 +105,16 @@ LedgerAda.prototype.getWalletPublicKeyRandom = function() {
 }
 
 /**
- * Get a public key from a random path on device.
+ * Get a public key (address) from the specified index on the device.
  *
+ * @param {Number} index The index to retrieve.
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   // TODO: Test if the address index is above 0x80000000, and if less, throw an error.
   // Nano S can only derive hardened addresses on ED25519 curve.
 
-  if(isNaN(address_index)) {
+  if(isNaN(index)) {
     var result = {};
     result['success'] = false;
     result['error'] = "Address index is not a number."
@@ -127,7 +128,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   buffer[3] = 0x02;
   buffer[4] = 0x05;
   buffer[5] = 0x01;
-  buffer.writeUInt32BE(address_index, 6);
+  buffer.writeUInt32BE(index, 6);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -142,7 +143,9 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
 }
 
 /**
- * TODO: What does this do?
+ * Get the extended public key from the wallet, also known as the recovery passphrase.
+ *
+ * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
   var buffer = Buffer.alloc(2);
@@ -197,8 +200,10 @@ LedgerAda.prototype.testBase58Encode = function(txHex) {
 }
 
 /**
- * TODO
+ * Check CBOR decoding on the device. This is for testing purposes only and is not available in production.
  *
+ * @param {String} txHex The Hexadecimal address for encoding.
+ * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.testCBORDecode = function(txHex) {
   var apdus = [];
@@ -279,8 +284,10 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
 }
 
 /**
- * TODO
+ * Check transaction hashing on the device. This is for testing purposes only and is not available in production.
  *
+ * @param {String} txHex The Hexadecimal address for hashing.
+ * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.testHashTransaction = function(txHex) {
   var apdus = [];
@@ -342,8 +349,10 @@ LedgerAda.prototype.testHashTransaction = function(txHex) {
 }
 
 /**
- * TODO
+ * Set the transaction.
  *
+ * @param {String} txHex The transaction to be set.
+ * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.setTransaction = function(txHex) {
   var apdus = [];
@@ -422,8 +431,11 @@ LedgerAda.prototype.setTransaction = function(txHex) {
 }
 
 /**
- * TODO
+ * Sign the set transaction with the given index.
+ * Note that setTransaction must be called prior to this being called.
  *
+ * @param {Number} index The index of the key to be used for signing.
+ * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.signTransactionWithIndex = function(index) {
     var apdus = [];
