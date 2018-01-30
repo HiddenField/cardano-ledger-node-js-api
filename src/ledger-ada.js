@@ -30,7 +30,7 @@
 
 const Q = require('q');
 const utils = require('./utils');
-var Int64 = require('node-int64')
+const Int64 = require('node-int64')
 
 const LedgerAda = function(comm) {
   this.comm = comm;
