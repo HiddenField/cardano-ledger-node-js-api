@@ -34,7 +34,8 @@
   },
   "scripts": {
     "test": "node test/tests-node.js",
-    "device-test": "mocha test/device",
+    "ada-core-test": "mocha test/ada/core",
+    "ada-api-test": "mocha test/ada/api",
     "browserify-test": "browserify --im --standalone runTests -o test/tests-browser.js test/tests-node.js",
     "browserify": "browserify --im --s=ledger -o browser/ledger.js src/index-browserify.js",
     "uglify": "uglifyjs -o browser/ledger.min.js browser/ledger.js",

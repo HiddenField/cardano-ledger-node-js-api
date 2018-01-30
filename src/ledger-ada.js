@@ -15,8 +15,6 @@
 *  limitations under the License.
 ********************************************************************************/
 
-'use strict';
-
 /*
  * ADA APDU I/O Buffer Structure
  *
@@ -30,30 +28,31 @@
  * buffer[END] = 0x9000 OKAY
  */
 
-var Q = require('q');
-var utils = require('./utils');
+const Q = require('q');
+const utils = require('./utils');
 
-var LedgerAda = function(comm) {
+const LedgerAda = function(comm) {
 	this.comm = comm;
 	this.comm.setScrambleKey('ADA');
 }
 
+/**
+ * Check whether a given APDU response is a success response.
+ * 
+ * @param {Object} apduResponse The APDU response.
+ * @returns True if response is successful.
+ */
 LedgerAda.prototype.isApduSuccess = function(apduResponse) {
-
-		if(LedgerAda.SUCCESS_CODE  ===
-			apduResponse.slice(apduResponse.length-4, apduResponse.length)) {
-
-				return true;
-
-		} else {
-
-				return false;
-
-		}
+  return LedgerAda.SUCCESS_CODE === apduResponse.slice(apduResponse.length-4, apduResponse.length);
 }
 
-
-LedgerAda.prototype.getWalletPublicKey_async = function(path) {
+/**
+ * Get the wallet public key at the specified path.
+ *
+ * @param path {String} The path of the public key to retrieve eg. m/44'/1815'/0'/12244'.
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.getWalletPublicKey = function(path) {
 	var splitPath = utils.splitPath(path);
 	var buffer = Buffer.alloc(5 + 1 + splitPath.length * 4);
 	buffer[0] = 0x80;
@@ -78,7 +77,12 @@ LedgerAda.prototype.getWalletPublicKey_async = function(path) {
 	});
 }
 
-LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
+/**
+ * Get a public key from a random path, ie. a random wallet address.
+ *
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.getRandomWalletPublicKey = function() {
 	var buffer = Buffer.alloc(6);
 	buffer[0] = 0x80;
 	buffer[1] = 0x0C;
@@ -99,8 +103,12 @@ LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
 	});
 }
 
-LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
-
+/**
+ * Get a public key from a random path on device.
+ *
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.getWalletPublicKeyFrom = function(address_index) {
 	// TODO: Test if the address index is above 0x80000000, and if less, throw an error.
 	// Nano S can only derive hardened addresses on ED25519 curve.
 
@@ -132,10 +140,10 @@ LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
 	});
 }
 
-
-
-LedgerAda.prototype.getWalletIndex_async = function() {
-
+/**
+ * TODO: What does this do?
+ */
+LedgerAda.prototype.getWalletIndex = function() {
 	var buffer = Buffer.alloc(2);
 	buffer[0] = 0x80;
 	buffer[1] = 0x0E;
@@ -151,8 +159,13 @@ LedgerAda.prototype.getWalletIndex_async = function() {
 	});
 }
 
-LedgerAda.prototype.testBase58Encode_async = function(txHex) {
-
+/**
+ * Check Base58 encoding on the device. This is for testing purposes only and is not available in production.
+ *
+ * @param {String} txHex The Hexadecimal address for encoding.
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.testBase58Encode = function(txHex) {
 	var headerLength = 9;
 	var tx = new Buffer(txHex, 'hex');
 	var offset = 0;
@@ -175,7 +188,7 @@ LedgerAda.prototype.testBase58Encode_async = function(txHex) {
 		var encodedAddressLength = response[0];
 		result['success'] = true;
 		result['Response'] = response.toString('hex');
-		result['Address Length'] = encodedAddressLength;
+		result['addressLength'] = encodedAddressLength;
 		result['encodedAddress'] = response.slice(1, 1 + encodedAddressLength).toString();
 		return result;
 
@@ -183,8 +196,7 @@ LedgerAda.prototype.testBase58Encode_async = function(txHex) {
 }
 
 
-LedgerAda.prototype.signTransaction_async = function(txHex) {
-
+LedgerAda.prototype.signTransaction = function(txHex) {
 	var apdus = [];
 	var response = [];
 	var offset = 0;
@@ -256,10 +268,7 @@ LedgerAda.prototype.signTransaction_async = function(txHex) {
 	});
 }
 
-
-
-LedgerAda.prototype.hashTransaction_async = function(txHex) {
-
+LedgerAda.prototype.hashTransaction = function(txHex) {
 	var apdus = [];
 	var response = [];
 	var offset = 0;
@@ -296,7 +305,6 @@ LedgerAda.prototype.hashTransaction_async = function(txHex) {
 		console.log("APDU Buffer[" + buffer.toString('hex') + "]");
 
 		offset += chunkSize;
-
 	}
 
 	return utils.foreach(apdus, function(apdu) {
@@ -319,14 +327,7 @@ LedgerAda.prototype.hashTransaction_async = function(txHex) {
 	});
 }
 
-
-
-
-
-
-
-LedgerAda.prototype.setTransaction_async = function(txHex) {
-
+LedgerAda.prototype.setTransaction = function(txHex) {
 	var apdus = [];
 	var response = [];
 	var offset = 0;
@@ -402,10 +403,7 @@ LedgerAda.prototype.setTransaction_async = function(txHex) {
   });
 }
 
-
-
-LedgerAda.prototype.setSigningIndexes_async = function(signingIndexes) {
-
+LedgerAda.prototype.setSigningIndexes = function(signingIndexes) {
 		var apdus = [];
 		var response = [];
 		var offset = 0;
@@ -455,14 +453,7 @@ LedgerAda.prototype.setSigningIndexes_async = function(signingIndexes) {
 		});
 }
 
-
-
-
-
-
-
-LedgerAda.prototype.setSignTransaction_async = function(addressIndex) {
-
+LedgerAda.prototype.setSignTransaction = function(addressIndex) {
 		var apdus = [];
 		var response = [];
 		var offset = 0;
@@ -497,8 +488,6 @@ LedgerAda.prototype.setSignTransaction_async = function(addressIndex) {
 
 		});
 }
-
-
 
 LedgerAda.SUCCESS_CODE = "9000";
 LedgerAda.TX_HASH_SIZE = 64;
