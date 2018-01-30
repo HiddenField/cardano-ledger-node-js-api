@@ -79,15 +79,15 @@ ledger
 
 
 
-
+*/
 			console.log("\n\n\nSTART - Signing Transaction");
-			ada.signTransaction_async(testTX22).then(
+			ada.testCBORDecode_async(testTX2).then(
 					function(result) {
 						  console.log(result);
 							console.log("END - Signing Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-
+/*
 			console.log("\n\n\nSTART - Hashing Transaction");
 			ada.hashTransaction_async(testTX2).then(
 					function(result) {
@@ -127,7 +127,7 @@ ledger
 							console.log("END - Send Signing Indexes\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-*/
+
 			console.log("\n\n\nSTART - Signing with index");
 			ada.setSignTransaction_async(0).then(
 					function(result) {
@@ -136,7 +136,7 @@ ledger
 					}).fail(
 					function(error) { console.log(error); });
 
-
+*/
 
 	})
 	.catch(function(reason) {

@@ -31,6 +31,7 @@
  */
 
 var Q = require('q');
+var Int64 = require('node-int64')
 var utils = require('./utils');
 
 var LedgerAda = function(comm) {
@@ -183,7 +184,7 @@ LedgerAda.prototype.testBase58Encode_async = function(txHex) {
 }
 
 
-LedgerAda.prototype.signTransaction_async = function(txHex) {
+LedgerAda.prototype.testCBORDecode_async = function(txHex) {
 
 	var apdus = [];
 	var response = [];
@@ -210,7 +211,7 @@ LedgerAda.prototype.signTransaction_async = function(txHex) {
 		var buffer = new Buffer(headerLength + chunkSize);
 		// Header
 		buffer[0] = 0x80;
-		buffer[1] = 0x06;
+		buffer[1] = 0x09;
 		buffer[2] = (offset == 0 ? 0x01 : 0x02);
 		buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
 		buffer[4] = 0x00;
@@ -228,20 +229,26 @@ LedgerAda.prototype.signTransaction_async = function(txHex) {
 			return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
 					var result = {};
 					result['success'] = true;
-					if(apduResponse.length > 2) {
+					var offset = 0;
+					if(apduResponse.length > 4) {
 							response = Buffer.from(apduResponse, 'hex');
 							result['success'] = true;
-							var offset = 2;
+							result['TxInputs'] = response[offset++];
+							result['TxOutputs'] = response[offset++];
+
 							var index = 0;
 							while (offset < (apduResponse.length/2) - 2) {
 									var tx = {};
 									// Set index
 									tx.index = index;
 									// Read amount
-									tx.checksum = response.slice(offset, offset + 4).toString('hex');
+									tx.checksum = response.readUInt32BE(offset);
+									//tx.checksum = response.slice(offset, offset + 4).toString('hex');
 									offset += 5;
 									// Read address
-									tx.amount = response.slice(offset, offset + 8).toString('hex');
+									//tx.amount = response.slice(offset, offset + 8).toString('hex');
+									tx.amount = new Int64(response.readUInt32LE(offset + 4),
+																				response.readUInt32LE(offset)).toOctetString();
 									offset += 9;
 									// Check if at the end
 									result['tx' + index ] = tx;
