@@ -29,7 +29,7 @@ ledger
 			var ada = new ledger.ada(comm);
 
 /*
-			ada.getWalletPublicKey_async("0'").then(
+			ada.getWalletPublicKeyWithPath("0'").then(
 		     function(result) {
 					 console.log("Deriving Wallet Recovery Passphrase");
 					 console.log(result);
@@ -38,14 +38,14 @@ ledger
 */
 
 /*
-			 ada.getWalletPublicKey_async("44'/1815'/0'/512'").then(
+			 ada.getWalletPublicKeyWithPath("44'/1815'/0'/512'").then(
  		     function(result) {
  					 console.log("Deriving Wallet Recovery Passphrase");
  					 console.log(result);
  				 }).fail(
  		     function(error) { console.log(error); });
 
-			ada.getWalletPublicKey_async("44'/1815'/0'/0'/0'").then(
+			ada.getWalletPublicKeyWithPath("44'/1815'/0'/0'/0'").then(
 		     function(result) {
 					 console.log("Deriving Wallet Recovery Passphrase");
 					 console.log(result);
@@ -53,7 +53,7 @@ ledger
 		     function(error) { console.log(error); });
 
 
-			ada.getRandomWalletPublicKey_async().then(
+			ada.getWalletPublicKeyRandom().then(
  		     function(result) {
 					 console.log("Generating Random Public Key in address space");
 					 console.log(result);
@@ -61,15 +61,15 @@ ledger
  		     function(error) { console.log(error); });
 
 
-		  var testAddress = 0xFFFFFFFF;
-			ada.getWalletPublicKeyFrom_async(testAddress).then(
+		  var testIndex = 0xFFFFFFFF;
+			ada.getWalletPublicKeyWithIndex(testIndex).then(
 		     function(result) {
 					 console.log("Deriving Public Key from passed in address index");
 					 console.log(result);
 				 }).fail(
 		     function(error) { console.log(error); });
 
-			ada.getWalletIndex_async().then(
+			ada.getWalletRecoveryPassphrase().then(
 				 function(result) {
 					 console.log("Deriving Wallet Index from device seed");
 					 console.log(result);
@@ -81,7 +81,7 @@ ledger
 
 */
 			console.log("\n\n\nSTART - Signing Transaction");
-			ada.testCBORDecode_async(testTX2).then(
+			ada.testCBORDecode(testTX2).then(
 					function(result) {
 						  console.log(result);
 							console.log("END - Signing Transaction\n\n\n");
@@ -100,7 +100,7 @@ ledger
 
 /*
 			console.log("\n\n\nSTART - Test Encoding Address");
-			ada.testBase58Encode_async(rawTestAddress1).then(
+			ada.testBase58Encode(rawTestAddress1).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Test Encoding Address\n\n\n");
@@ -110,8 +110,7 @@ ledger
 
 
 			console.log("\n\n\nSTART - Set Transaction");
-			var paths = [512, 200, 16, 0, 324568];
-			ada.setTransaction_async(testTX).then(
+			ada.setTransaction(testTX).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Set Transaction\n\n\n");
@@ -119,17 +118,8 @@ ledger
 					function(error) { console.log(error); });
 */
 /*
-			console.log("\n\n\nSTART - Send Signing Indexes");
-			var indexes = [512, 200, 16, 324568];
-			ada.setSigningIndexes_async(indexes).then(
-					function(result) {
-							console.log(result);
-							console.log("END - Send Signing Indexes\n\n\n");
-					}).fail(
-					function(error) { console.log(error); });
-
 			console.log("\n\n\nSTART - Signing with index");
-			ada.setSignTransaction_async(0).then(
+			ada.signTransactionWithIndex(0).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Signing Index\n\n\n");

@@ -54,7 +54,7 @@ LedgerAda.prototype.isApduSuccess = function(apduResponse) {
 }
 
 
-LedgerAda.prototype.getWalletPublicKey_async = function(path) {
+LedgerAda.prototype.getWalletPublicKeyWithPath = function(path) {
 	var splitPath = utils.splitPath(path);
 	var buffer = Buffer.alloc(5 + 1 + splitPath.length * 4);
 	buffer[0] = 0x80;
@@ -79,7 +79,7 @@ LedgerAda.prototype.getWalletPublicKey_async = function(path) {
 	});
 }
 
-LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
+LedgerAda.prototype.getWalletPublicKeyRandom = function() {
 	var buffer = Buffer.alloc(6);
 	buffer[0] = 0x80;
 	buffer[1] = 0x0C;
@@ -100,7 +100,7 @@ LedgerAda.prototype.getRandomWalletPublicKey_async = function() {
 	});
 }
 
-LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
+LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
 
 	// TODO: Test if the address index is above 0x80000000, and if less, throw an error.
 	// Nano S can only derive hardened addresses on ED25519 curve.
@@ -135,7 +135,7 @@ LedgerAda.prototype.getWalletPublicKeyFrom_async = function(address_index) {
 
 
 
-LedgerAda.prototype.getWalletIndex_async = function() {
+LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
 
 	var buffer = Buffer.alloc(2);
 	buffer[0] = 0x80;
@@ -152,7 +152,7 @@ LedgerAda.prototype.getWalletIndex_async = function() {
 	});
 }
 
-LedgerAda.prototype.testBase58Encode_async = function(txHex) {
+LedgerAda.prototype.testBase58Encode = function(txHex) {
 
 	var headerLength = 9;
 	var tx = new Buffer(txHex, 'hex');
@@ -184,7 +184,7 @@ LedgerAda.prototype.testBase58Encode_async = function(txHex) {
 }
 
 
-LedgerAda.prototype.testCBORDecode_async = function(txHex) {
+LedgerAda.prototype.testCBORDecode = function(txHex) {
 
 	var apdus = [];
 	var response = [];
@@ -265,7 +265,7 @@ LedgerAda.prototype.testCBORDecode_async = function(txHex) {
 
 
 
-LedgerAda.prototype.hashTransaction_async = function(txHex) {
+LedgerAda.prototype.testHashTransaction = function(txHex) {
 
 	var apdus = [];
 	var response = [];
@@ -327,12 +327,7 @@ LedgerAda.prototype.hashTransaction_async = function(txHex) {
 }
 
 
-
-
-
-
-
-LedgerAda.prototype.setTransaction_async = function(txHex) {
+LedgerAda.prototype.setTransaction = function(txHex) {
 
 	var apdus = [];
 	var response = [];
@@ -404,65 +399,7 @@ LedgerAda.prototype.setTransaction_async = function(txHex) {
 }
 
 
-
-LedgerAda.prototype.setSigningIndexes_async = function(signingIndexes) {
-
-		var apdus = [];
-		var response = [];
-		var offset = 0;
-		var headerLength = 8;
-		var offset = headerLength;
-		var self = this;
-		var indexCount = signingIndexes.length;
-
-		console.log("Number of Indexes[" + indexCount + "]");
-
-		var buffer = new Buffer(headerLength + (indexCount * 4));
-		// Header
-		buffer[0] = 0x80;
-		buffer[1] = 0x07;
-		buffer[2] = 0x00;
-		buffer[3] = 0x00;
-		buffer.writeUInt32BE( indexCount, 4);
-		// Body
-		// Write each signing index as a 4 byte int.
-		for(var i = 0; i < indexCount; i++) {
-				buffer.writeUInt32BE( signingIndexes[i], offset);
-				offset += 4;
-		}
-
-		return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(apduResponse) {
-			var result = {};
-
-			var responseHexLength = apduResponse.toString('hex').length;
-			response = Buffer.from(response, 'hex');
-
-			result['success'] = "9000" ===
-				apduResponse.slice(responseHexLength-4, responseHexLength) ?
-				true : false;
-
-			indexCount = response.slice(0, 1).toString('hex');
-			if(!isNaN(indexCount)) {
-					for(var i = 0; i < indexCount; i++) {
-							var indexOffest = indexCount * 4 + 1;
-							result[i] = response.slice(indexCount * 4 + 1, (indexCount * 4 + 1) + 4)
-					}
-			} else {
-				  result["error"] = "No indexes found in response";
-			}
-
-			return result;
-
-		});
-}
-
-
-
-
-
-
-
-LedgerAda.prototype.setSignTransaction_async = function(addressIndex) {
+LedgerAda.prototype.signTransactionWithIndex = function(index) {
 
 		var apdus = [];
 		var response = [];
@@ -471,7 +408,7 @@ LedgerAda.prototype.setSignTransaction_async = function(addressIndex) {
 		var offset = headerLength;
 		var self = this;
 
-		console.log("Signing with address index[" + addressIndex + "]");
+		console.log("Signing with address index[" + index + "]");
 
 		var buffer = new Buffer(headerLength + 4);
 		// Header
@@ -479,7 +416,7 @@ LedgerAda.prototype.setSignTransaction_async = function(addressIndex) {
 		buffer[1] = 0x06;
 		buffer[2] = 0x00;
 		buffer[3] = 0x00;
-		buffer.writeUInt32BE( addressIndex, 4);
+		buffer.writeUInt32BE( index, 4);
 		// Body
 
 		return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(apduResponse) {
