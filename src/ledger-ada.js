@@ -138,7 +138,6 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
     result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
     result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
     return result;
-
   });
 }
 
