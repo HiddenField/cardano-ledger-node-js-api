@@ -105,7 +105,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
 	// TODO: Test if the address index is above 0x80000000, and if less, throw an error.
 	// Nano S can only derive hardened addresses on ED25519 curve.
 
-	if(isNaN(address_index)) {
+	if(isNaN(index)) {
 		var result = {};
 		result['success'] = false;
 		result['error'] = "Address index is not a number."
@@ -119,7 +119,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
 	buffer[3] = 0x02;
 	buffer[4] = 0x05;
 	buffer[5] = 0x01;
-	buffer.writeUInt32BE(address_index, 6);
+	buffer.writeUInt32BE(index, 6);
 
 	return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
 		var result = {};
