@@ -1,4 +1,5 @@
-const { comm_node, ada } = require('../../src');
+const { comm_node } = require('../../src');
+const ada = require('./ledger-ada');
 
 /**
  * Convenience function for retrieving the ADA Ledger.
