@@ -5,7 +5,7 @@ describe('Cardano ADA: Core', () => {
   let legder = {};
 
   afterEach(() => {
-    ledger.comm.close()
+    ledger.comm.close_async()
       .then(() => {
         ledger = {};
       });
