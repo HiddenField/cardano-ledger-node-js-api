@@ -11,8 +11,6 @@ LedgerAda.prototype.testBase58Encode = function(txHex) {
   var tx = new Buffer(txHex, 'hex');
   var offset = 0;
 
-  console.log("Transaction Length[" + tx.length + "]")
-
   var buffer = Buffer.alloc(headerLength + tx.length);
   buffer[0] = 0x80;
   buffer[1] = 0x08;
@@ -20,6 +18,8 @@ LedgerAda.prototype.testBase58Encode = function(txHex) {
   buffer[3] = 0x00;
   buffer[4] = 0x00;
   buffer.writeUInt32BE( tx.length, 5);
+
+
   // Body
   tx.copy(buffer, headerLength, offset, offset + tx.length);
 

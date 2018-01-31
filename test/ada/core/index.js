@@ -52,9 +52,8 @@ describe('Cardano ADA: Core', () => {
         .catch(error => done());
     });
 
-    it('Should reject an input larger than hex size', (done) => {
-      const address = new Buffer(256).toString('hex');
-      console.log(address);
+    it('Sending 248bytes should be rejected as APDU max size', (done) => {
+      const address = '000000000000000000000000000000003a41c927040000000000000000000000b8e0bb0101000000fa4ee21705000000000000000000000050dfbb01010000001e33275b01000000000000000000000098dfbb0101000000d66409c6020000000040000000000000e8b585020100000028b5850201000000ffffffffffffffffffffffff02000000010000000200000040c6fb000100000068b1850201000000070000000500010048b9850201000000b8c38502010000000000000000000000004000000000000048b685020100000088b5850201000000ffffffffffffffffffffffff03000000010000000300000040c6fb0001000000';
 
       getLedger()
         .then((device) => {
@@ -62,10 +61,7 @@ describe('Cardano ADA: Core', () => {
           return ledger.testBase58Encode(address);
         })
         .then(res => done(res))
-        .catch(error => {
-          console.log(error);
-          done();
-        });
+        .catch(error => done());
     });
 
     it('Should reject invalid hexadecimal characters', (done) => {
