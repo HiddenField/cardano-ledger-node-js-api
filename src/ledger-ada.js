@@ -15,8 +15,6 @@
  *  limitations under the License.
  ********************************************************************************/
 
-'use strict';
-
 /*
  * ADA APDU I/O Buffer Structure
  *
@@ -30,19 +28,31 @@
  * buffer[END] = 0x9000 OKAY
  */
 
-var Q = require('q');
-var Int64 = require('node-int64')
-var utils = require('./utils');
+const Q = require('q');
+const utils = require('./utils');
+const Int64 = require('node-int64');
 
-var LedgerAda = function(comm) {
+const LedgerAda = function(comm) {
   this.comm = comm;
   this.comm.setScrambleKey('ADA');
 }
 
+/**
+ * Check whether a given APDU response is a success response.
+ * 
+ * @param {Object} apduResponse The APDU response.
+ * @returns True if response is successful.
+ */
 LedgerAda.prototype.isApduSuccess = function(apduResponse) {
   return LedgerAda.SUCCESS_CODE === apduResponse.slice(apduResponse.length-4, apduResponse.length);
 }
 
+/**
+ * Get the wallet public key at the specified path.
+ *
+ * @param path {String} The path of the public key to retrieve eg. m/44'/1815'/0'/12244'.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.getWalletPublicKeyWithPath = function(path) {
   var splitPath = utils.splitPath(path);
   var buffer = Buffer.alloc(5 + 1 + splitPath.length * 4);
@@ -68,6 +78,11 @@ LedgerAda.prototype.getWalletPublicKeyWithPath = function(path) {
   });
 }
 
+/**
+ * Get a public key from a random path, ie. a random wallet address.
+ *
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.getWalletPublicKeyRandom = function() {
   var buffer = Buffer.alloc(6);
   buffer[0] = 0x80;
@@ -89,8 +104,13 @@ LedgerAda.prototype.getWalletPublicKeyRandom = function() {
   });
 }
 
+/**
+ * Get a public key (address) from the specified index on the device.
+ *
+ * @param {Number} index The index to retrieve.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
-
   // TODO: Test if the address index is above 0x80000000, and if less, throw an error.
   // Nano S can only derive hardened addresses on ED25519 curve.
 
@@ -118,14 +138,15 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
     result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
     result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
     return result;
-
   });
 }
 
-
-
+/**
+ * Get the extended public key from the wallet, also known as the recovery passphrase.
+ *
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
-
   var buffer = Buffer.alloc(2);
   buffer[0] = 0x80;
   buffer[1] = 0x0E;
@@ -137,12 +158,16 @@ LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
     result['success'] = true;
     result['walletIndex'] = response.slice(1, 1 + walletIndexLength).toString('hex');
     return result;
-
   });
 }
 
+/**
+ * Check Base58 encoding on the device. This is for testing purposes only and is not available in production.
+ *
+ * @param {String} txHex The Hexadecimal address for encoding.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.testBase58Encode = function(txHex) {
-
   var headerLength = 9;
   var tx = new Buffer(txHex, 'hex');
   var offset = 0;
@@ -165,16 +190,19 @@ LedgerAda.prototype.testBase58Encode = function(txHex) {
     var encodedAddressLength = response[0];
     result['success'] = true;
     result['Response'] = response.toString('hex');
-    result['Address Length'] = encodedAddressLength;
+    result['addressLength'] = encodedAddressLength;
     result['encodedAddress'] = response.slice(1, 1 + encodedAddressLength).toString();
     return result;
-
   });
 }
 
-
+/**
+ * Check CBOR decoding on the device. This is for testing purposes only and is not available in production.
+ *
+ * @param {String} txHex The Hexadecimal address for encoding.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.testCBORDecode = function(txHex) {
-
   var apdus = [];
   var response = [];
   var offset = 0;
@@ -211,7 +239,6 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
     console.log("APDU Buffer[" + buffer.toString('hex') + "]");
 
     offset += chunkSize;
-
   }
 
   return utils.foreach(apdus, function(apdu) {
@@ -248,14 +275,17 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
         }
       }
       return result;
-    })
+    });
   });
 }
 
-
-
+/**
+ * Check transaction hashing on the device. This is for testing purposes only and is not available in production.
+ *
+ * @param {String} txHex The Hexadecimal address for hashing.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.testHashTransaction = function(txHex) {
-
   var apdus = [];
   var response = [];
   var offset = 0;
@@ -292,7 +322,6 @@ LedgerAda.prototype.testHashTransaction = function(txHex) {
     console.log("APDU Buffer[" + buffer.toString('hex') + "]");
 
     offset += chunkSize;
-
   }
 
   return utils.foreach(apdus, function(apdu) {
@@ -315,15 +344,25 @@ LedgerAda.prototype.testHashTransaction = function(txHex) {
   });
 }
 
-
+/**
+ * Set the transaction.
+ *
+ * @param {String} txHex The transaction to be set.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.setTransaction = function(txHex) {
-
   var apdus = [];
   var response = [];
   var offset = 0;
   var headerLength = 9;
-  var tx = new Buffer(txHex, 'hex');
+  var tx = '';
   var self = this;
+
+  try {
+    tx = new Buffer(txHex, 'hex');
+  } catch (error) {
+    return Q.reject(error);
+  }
 
   var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
   var isSingleAPDU = tx.length < maxChunkSize;
@@ -382,14 +421,18 @@ LedgerAda.prototype.setTransaction = function(txHex) {
       }
 
       return result;
-
-    })
+    });
   });
 }
 
-
+/**
+ * Sign the set transaction with the given index.
+ * Note that setTransaction must be called prior to this being called.
+ *
+ * @param {Number} index The index of the key to be used for signing.
+ * @returns {Promise<Object>} The response from the device.
+ */
 LedgerAda.prototype.signTransactionWithIndex = function(index) {
-
   var apdus = [];
   var response = [];
   var offset = 0;
@@ -424,8 +467,6 @@ LedgerAda.prototype.signTransactionWithIndex = function(index) {
 
   });
 }
-
-
 
 LedgerAda.SUCCESS_CODE = "9000";
 LedgerAda.TX_HASH_SIZE = 64;

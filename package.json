@@ -28,10 +28,15 @@
   },
   "devDependencies": {
     "browserify": "13.1.0",
+    "chai": "4.1.2",
+    "chalk": "^2.3.0",
+    "mocha": "4.1.0",
     "uglify-js": "2.7.3"
   },
   "scripts": {
     "test": "node test/tests-node.js",
+    "ada-core-test": "mocha test/ada/core",
+    "ada-api-test": "mocha test/ada/api",
     "browserify-test": "browserify --im --standalone runTests -o test/tests-browser.js test/tests-node.js",
     "browserify": "browserify --im --s=ledger -o browser/ledger.js src/index-browserify.js",
     "uglify": "uglifyjs -o browser/ledger.min.js browser/ledger.js",
