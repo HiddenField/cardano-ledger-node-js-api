@@ -12,7 +12,7 @@ describe('Cardano ADA: Core', () => {
   });
 
   describe('testBase58Encode', () => {
-    it('Should successfully base58 encode a valid address', (done) => {
+    it('Should successfully base58 encode a valid address (168)', (done) => {
 			const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
 
       getLedger()
@@ -23,6 +23,54 @@ describe('Cardano ADA: Core', () => {
         .then((res) => {
           expect(res.encodedAddress).to.equal('AL91N9VXRTCypFouG2KjJvJuvKmUC4p3XcpHnYETWRG5HJVpi2ixeN1nG5EWtbJCH71YjzhqHKcsmmPYGRjy8nHDe2i17BEf9hTqDDLmcFVbHxx1GW9');
           expect(res.addressLength).to.equal(115);
+          done();
+        })
+        .catch(error => done(error));
+    });
+
+    it('Should successfully base58 encode a valid address (96)', (done) => {
+	    const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9';
+
+      getLedger()
+        .then((device) => {
+          ledger = device;
+          return ledger.testBase58Encode(address);
+        })
+        .then((res) => {
+          expect(res.encodedAddress).to.equal('5oP9ibJgeUpYTNH63zMtZpGW9HvKqmivuW9LZ8rjwFYmyRc5ck1XPuRLUPmGfmqmyS');
+          expect(res.addressLength).to.equal(66);
+          done();
+        })
+        .catch(error => done(error));
+    });
+
+    it('Should successfully base58 encode a valid address (86)', (done) => {
+			const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a2005820820058';
+
+      getLedger()
+        .then((device) => {
+          ledger = device;
+          return ledger.testBase58Encode(address);
+        })
+        .then((res) => {
+          expect(res.encodedAddress).to.equal('Ae2tdQQF3CnPrUGo38JavTvDTzJs1Y9G65U4dSETMDUdr1rhXGDyu8hrhKV');
+          expect(res.addressLength).to.equal(59);
+          done();
+        })
+        .catch(error => done(error));
+    });
+
+    it('Should successfully base58 encode a valid address (54)', (done) => {
+			const address = "82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e1";
+
+      getLedger()
+        .then((device) => {
+          ledger = device;
+          return ledger.testBase58Encode(address);
+        })
+        .then((res) => {
+          expect(res.encodedAddress).to.equal('JggfeJYzKnHo6CUKakUwBpbkZYkRGcuf72szg');
+          expect(res.addressLength).to.equal(37);
           done();
         })
         .catch(error => done(error));
