@@ -28,77 +28,31 @@ ledger
 
 			var ada = new ledger.ada(comm);
 
-/*
-			ada.getWalletPublicKeyWithPath("0'").then(
-		     function(result) {
-					 console.log("Deriving Wallet Recovery Passphrase");
-					 console.log(result);
-				 }).fail(
-		     function(error) { console.log(error); });
-*/
-
-/*
-			 ada.getWalletPublicKeyWithPath("44'/1815'/0'/512'").then(
- 		     function(result) {
- 					 console.log("Deriving Wallet Recovery Passphrase");
- 					 console.log(result);
- 				 }).fail(
- 		     function(error) { console.log(error); });
-
-			ada.getWalletPublicKeyWithPath("44'/1815'/0'/0'/0'").then(
-		     function(result) {
-					 console.log("Deriving Wallet Recovery Passphrase");
-					 console.log(result);
-				 }).fail(
-		     function(error) { console.log(error); });
-
-
-			ada.getWalletPublicKeyRandom().then(
- 		     function(result) {
-					 console.log("Generating Random Public Key in address space");
-					 console.log(result);
-				 }).fail(
- 		     function(error) { console.log(error); });
-
-
-		  var testIndex = 0xFFFFFFFF;
-			ada.getWalletPublicKeyWithIndex(testIndex).then(
-		     function(result) {
-					 console.log("Deriving Public Key from passed in address index");
-					 console.log(result);
-				 }).fail(
-		     function(error) { console.log(error); });
-
-			ada.getWalletRecoveryPassphrase().then(
-				 function(result) {
-					 console.log("Deriving Wallet Index from device seed");
-					 console.log(result);
-				 }).fail(
-				 function(error) { console.log(error); });
-
-
-
-
-*/
-			console.log("\n\n\nSTART - Signing Transaction");
+			/*
+			//TODO: These have moved to the test API - Broken
+			console.log("\n\n\nSTART - CBOR Transaction");
 			ada.testCBORDecode(testTX2).then(
 					function(result) {
 						  console.log(result);
 							console.log("END - Signing Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-/*
+
+			*/
+			/*
+			//TODO: These have moved to the test API - Broken
 			console.log("\n\n\nSTART - Hashing Transaction");
-			ada.hashTransaction_async(testTX2).then(
+			ada.hashTransaction(testTX2).then(
 					function(result) {
 						  console.log(result);
 							console.log("END - Hashing Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
 
-*/
+			*/
 
-/*
+			/*
+			//TODO: These have moved to the test API - Broken
 			console.log("\n\n\nSTART - Test Encoding Address");
 			ada.testBase58Encode(rawTestAddress1).then(
 					function(result) {
@@ -107,8 +61,28 @@ ledger
 					}).fail(
 					function(error) { console.log(error); });
 
+			*/
 
+			/*
+		  var testIndex = 0xFFFFFFFF;
+			ada.getWalletPublicKeyWithIndex(testIndex).then(
+		     function(result) {
+					 console.log("Deriving Public Key from passed in address index");
+					 console.log(result);
+				 }).fail(
+		     function(error) { console.log(error); });
 
+		 */
+		 /*
+		 ada.getWalletRecoveryPassphrase().then(
+				 function(result) {
+					 console.log("Deriving Wallet Index from device seed");
+					 console.log(result);
+				 }).fail(
+				 function(error) { console.log(error); });
+
+		 */
+		 /*
 			console.log("\n\n\nSTART - Set Transaction");
 			ada.setTransaction(testTX).then(
 					function(result) {
@@ -116,8 +90,9 @@ ledger
 							console.log("END - Set Transaction\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-*/
-/*
+
+			*/
+			/*
 			console.log("\n\n\nSTART - Signing with index");
 			ada.signTransactionWithIndex(0).then(
 					function(result) {
@@ -126,7 +101,7 @@ ledger
 					}).fail(
 					function(error) { console.log(error); });
 
-*/
+			*/
 
 	})
 	.catch(function(reason) {
