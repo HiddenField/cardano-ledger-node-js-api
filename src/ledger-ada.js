@@ -39,69 +39,12 @@ const LedgerAda = function(comm) {
 
 /**
  * Check whether a given APDU response is a success response.
- * 
+ *
  * @param {Object} apduResponse The APDU response.
  * @returns True if response is successful.
  */
 LedgerAda.prototype.isApduSuccess = function(apduResponse) {
   return LedgerAda.SUCCESS_CODE === apduResponse.slice(apduResponse.length-4, apduResponse.length);
-}
-
-/**
- * Get the wallet public key at the specified path.
- *
- * @param path {String} The path of the public key to retrieve eg. m/44'/1815'/0'/12244'.
- * @returns {Promise<Object>} The response from the device.
- */
-LedgerAda.prototype.getWalletPublicKeyWithPath = function(path) {
-  var splitPath = utils.splitPath(path);
-  var buffer = Buffer.alloc(5 + 1 + splitPath.length * 4);
-  buffer[0] = 0x80;
-  buffer[1] = 0x02;
-  buffer[2] = 0x00;
-  buffer[3] = 0x02;
-  buffer[4] = 1 + splitPath.length * 4;
-  buffer[5] = splitPath.length;
-  splitPath.forEach(function (element, index) {
-    buffer.writeUInt32BE(element, 6 + 4 * index);
-  });
-  var self = this;
-  return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
-    var result = {};
-    response = Buffer.from(response, 'hex');
-    var publicKeyLength = response[0];
-    result['success'] = true;
-    result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-    result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
-    return result;
-
-  });
-}
-
-/**
- * Get a public key from a random path, ie. a random wallet address.
- *
- * @returns {Promise<Object>} The response from the device.
- */
-LedgerAda.prototype.getWalletPublicKeyRandom = function() {
-  var buffer = Buffer.alloc(6);
-  buffer[0] = 0x80;
-  buffer[1] = 0x0C;
-  buffer[2] = 0x00;
-  buffer[3] = 0x02;
-  buffer[4] = 0x01;
-  buffer[5] = 0x00;
-
-  return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
-    var result = {};
-    response = Buffer.from(response, 'hex');
-    var publicKeyLength = response[0];
-    result['success'] = true;
-    result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-    result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
-    return result;
-
-  });
 }
 
 /**
@@ -121,14 +64,12 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
     return result;
   }
 
-  var buffer = Buffer.alloc(10);
+  var buffer = Buffer.alloc(8);
   buffer[0] = 0x80;
-  buffer[1] = 0x0C;
-  buffer[2] = 0x00;
-  buffer[3] = 0x02;
-  buffer[4] = 0x05;
-  buffer[5] = 0x01;
-  buffer.writeUInt32BE(index, 6);
+  buffer[1] = 0x02;
+  buffer[2] = 0x02;
+  buffer[3] = 0x00;
+  buffer.writeUInt32BE(index, 4);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -136,7 +77,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
     var publicKeyLength = response[0];
     result['success'] = true;
     result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-    result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
+
     return result;
   });
 }
@@ -147,16 +88,20 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
-  var buffer = Buffer.alloc(2);
+	var buffer = Buffer.alloc(8);
   buffer[0] = 0x80;
-  buffer[1] = 0x0E;
+  buffer[1] = 0x02;
+  buffer[2] = 0x01;
+  buffer[3] = 0x00;
+	buffer.writeUInt32BE(0, 4);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
     response = Buffer.from(response, 'hex');
-    var walletIndexLength = response[0];
+    var publicKeyLength = response[0];
     result['success'] = true;
-    result['walletIndex'] = response.slice(1, 1 + walletIndexLength).toString('hex');
+		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
+		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
     return result;
   });
 }
