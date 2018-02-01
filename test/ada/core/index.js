@@ -13,7 +13,7 @@ describe('Cardano ADA: Core', () => {
 
   describe('testBase58Encode', () => {
     it('Should successfully base58 encode a valid address (168)', (done) => {
-			const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
+      const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
 
       getLedger()
         .then((device) => {
@@ -29,7 +29,7 @@ describe('Cardano ADA: Core', () => {
     });
 
     it('Should successfully base58 encode a valid address (96)', (done) => {
-	    const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9';
+      const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9';
 
       getLedger()
         .then((device) => {
@@ -45,7 +45,7 @@ describe('Cardano ADA: Core', () => {
     });
 
     it('Should successfully base58 encode a valid address (86)', (done) => {
-			const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a2005820820058';
+      const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a2005820820058';
 
       getLedger()
         .then((device) => {
@@ -61,7 +61,7 @@ describe('Cardano ADA: Core', () => {
     });
 
     it('Should successfully base58 encode a valid address (54)', (done) => {
-			const address = "82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e1";
+      const address = "82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e1";
 
       getLedger()
         .then((device) => {
@@ -77,7 +77,8 @@ describe('Cardano ADA: Core', () => {
     });
 
     it('Should successfully base58 encode an all 0 address', (done) => {
-     const address = '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+      const address = '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+
       getLedger()
         .then((device) => {
           ledger = device;
@@ -92,7 +93,8 @@ describe('Cardano ADA: Core', () => {
     });
 
     it('Should successfully base58 encode an all f address', (done) => {
-     const address = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+      const address = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+
       getLedger()
         .then((device) => {
           ledger = device;
@@ -153,7 +155,7 @@ describe('Cardano ADA: Core', () => {
     });
 
     it('Should reject invalid length hexadecimal', (done) => {
-			const address = '82d81';
+      const address = '82d81';
 
       getLedger()
         .then((device) => {
@@ -166,7 +168,7 @@ describe('Cardano ADA: Core', () => {
 
     it('Should base58 encode with 40 iterations (stress test)', (done) => {
       const length = 40;
-			const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
+      const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
       const addresses = Array.from({ length }, (v, i) => address);
 
       getLedger()
@@ -175,7 +177,7 @@ describe('Cardano ADA: Core', () => {
           return Promise.all(addresses.map(address => ledger.testBase58Encode(address)));
         })
         .then(responses => {
-          responses.forEach((res) => { 
+          responses.forEach((res) => {
             expect(res.encodedAddress).to.equal('AL91N9VXRTCypFouG2KjJvJuvKmUC4p3XcpHnYETWRG5HJVpi2ixeN1nG5EWtbJCH71YjzhqHKcsmmPYGRjy8nHDe2i17BEf9hTqDDLmcFVbHxx1GW9');
             expect(res.addressLength).to.equal(115);
           });
