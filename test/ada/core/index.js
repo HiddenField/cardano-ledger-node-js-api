@@ -27,7 +27,7 @@ describe('Cardano ADA: Core', () => {
         })
         .catch(error => done(error));
     });
-    
+
     it('Should successfully base58 encode an all 0 address', (done) => {
      const address = '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
       getLedger()
@@ -42,7 +42,7 @@ describe('Cardano ADA: Core', () => {
         })
         .catch(error => done(error));
     });
-    
+
     it('Should successfully base58 encode an all f address', (done) => {
      const address = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
       getLedger()
@@ -57,7 +57,7 @@ describe('Cardano ADA: Core', () => {
         })
         .catch(error => done(error));
     });
-    
+
     it('Should successfully return empty for empty string', (done) => {
       getLedger()
         .then((device) => {
@@ -114,6 +114,26 @@ describe('Cardano ADA: Core', () => {
         })
         .then(res => done(res))
         .catch(error => done());
+    });
+
+    it('Should base58 encode with 40 iterations (stress test)', (done) => {
+      const length = 40;
+			const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
+      const addresses = Array.from({ length }, (v, i) => address);
+
+      getLedger()
+        .then((device) => {
+          ledger = device;
+          return Promise.all(addresses.map(address => ledger.testBase58Encode(address)));
+        })
+        .then(responses => {
+          responses.forEach((res) => { 
+            expect(res.encodedAddress).to.equal('AL91N9VXRTCypFouG2KjJvJuvKmUC4p3XcpHnYETWRG5HJVpi2ixeN1nG5EWtbJCH71YjzhqHKcsmmPYGRjy8nHDe2i17BEf9hTqDDLmcFVbHxx1GW9');
+            expect(res.addressLength).to.equal(115);
+          });
+          done();
+        })
+        .catch(error => done(error));
     });
   });
 });
