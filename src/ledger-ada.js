@@ -88,20 +88,21 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
-	var buffer = Buffer.alloc(8);
+  var buffer = Buffer.alloc(8);
+
   buffer[0] = 0x80;
   buffer[1] = 0x02;
   buffer[2] = 0x01;
   buffer[3] = 0x00;
-	buffer.writeUInt32BE(0, 4);
+  buffer.writeUInt32BE(0, 4);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
     response = Buffer.from(response, 'hex');
     var publicKeyLength = response[0];
     result['success'] = true;
-		result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
-		result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
+    result['publicKey'] = response.slice(1, 1 + publicKeyLength).toString('hex');
+    result['chainCode'] = response.slice(1 + publicKeyLength, 1 + publicKeyLength + 32).toString('hex');
     return result;
   });
 }
