@@ -176,8 +176,8 @@ LedgerAda.prototype.setTransaction = function(txHex) {
       result['resp'] = apduResponse.toString('hex');
       if(apduResponse.length > LedgerAda.CODE_LENGTH) {
         response = Buffer.from(apduResponse, 'hex');
-        var offset = 0;
-        //First byte is number of outputs
+        var offset = 0;        
+        result['TxInputCount'] = response.readUInt8(offset++);
         result['TxOutputCount'] = response.readUInt8(offset++);
         for(var i=0; i<result['TxOutputCount']; i++) {
             result['Address_' + i] = response.slice(
