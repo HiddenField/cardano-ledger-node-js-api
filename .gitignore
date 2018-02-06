@@ -28,5 +28,8 @@ node_modules
 /.idea/
 /test/tests-browser.js
 
+# OS
+.DS_Store
+
 # Editors
 *.swp
