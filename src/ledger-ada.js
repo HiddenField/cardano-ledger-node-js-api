@@ -170,17 +170,28 @@ LedgerAda.prototype.setTransaction = function(txHex) {
       console.log("SLICE:" + apduResponse.slice(responseHexLength-4, responseHexLength).toString('hex'));
 
       result['success'] = "9000" ===
-        apduResponse.slice(responseHexLength-4, responseHexLength) ?
+        apduResponse.slice(responseHexLength - LedgerAda.CODE_LENGTH, responseHexLength) ?
         true : false;
       result['respLength'] = apduResponse.toString('hex').length;
       result['resp'] = apduResponse.toString('hex');
-      if(apduResponse.length > 4) {
+      if(apduResponse.length > LedgerAda.CODE_LENGTH) {
         response = Buffer.from(apduResponse, 'hex');
-        var offset = 0;
+        var offset = 0;        
+        result['TxInputCount'] = response.readUInt8(offset++);
+        result['TxOutputCount'] = response.readUInt8(offset++);
+        for(var i=0; i<result['TxOutputCount']; i++) {
+            result['Address_' + i] = response.slice(
+                  offset, offset + LedgerAda.MAX_ADDR_PRINT_LENGTH).toString();
+            offset += LedgerAda.MAX_ADDR_PRINT_LENGTH;
+            result['Amount_' + i] = tx.amount = new Int64(
+              response.readUInt32LE(offset + (LedgerAda.AMOUNT_SIZE/2)),
+              response.readUInt32LE(offset)).toOctetString();
+            offset+= LedgerAda.AMOUNT_SIZE;
+        }
         // Read 256bit (32 byte) hash
         //result['txLength'] = apduResponse.slice(offset, offset + 16).toString('hex');
         //offset += 16;
-        result['tx'] = apduResponse.slice(offset, offset + LedgerAda.TX_HASH_SIZE).toString('hex');
+        //result['tx'] = apduResponse.slice(offset, offset + LedgerAda.TX_HASH_SIZE).toString('hex');
       }
 
       return result;
@@ -232,8 +243,11 @@ LedgerAda.prototype.signTransactionWithIndex = function(index) {
 }
 
 LedgerAda.SUCCESS_CODE = "9000";
+LedgerAda.CODE_LENGTH = 4;
+LedgerAda.AMOUNT_SIZE = 8;
 LedgerAda.TX_HASH_SIZE = 64;
 LedgerAda.MAX_CHUNK_SIZE = 64;
 LedgerAda.MAX_TX_LENGTH = 2000;
+LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
 
 module.exports = LedgerAda;
