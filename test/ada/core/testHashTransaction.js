@@ -146,11 +146,12 @@ describe('testHashTransaction', () => {
         ledger = device;
         return ledger.testHashTransaction(address);
       })
-      .then(res => {
-        console.log(res);
-        done(res);
+      .then(res => done(res))
+      .catch((error) => {
+        expect(error).to.have.string('5001');
+        done();
       })
-      .catch(error => done());
+      .catch(error => done(error));
   });
 
   it('Should return empty for empty string', (done) => {

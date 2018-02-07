@@ -1,3 +1,4 @@
+const Int64 = require('node-int64');
 const LedgerAda = require('../../src/ledger-ada');
 const utils = require('../../src/utils');
 
@@ -79,8 +80,8 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
       if(apduResponse.length > 4) {
         response = Buffer.from(apduResponse, 'hex');
         result['success'] = true;
-        result['TxInputs'] = response[offset++];
-        result['TxOutputs'] = response[offset++];
+        result['txInputs'] = response[offset++];
+        result['txOutputs'] = response[offset++];
 
         var index = 0;
         while (offset < (apduResponse.length/2) - 2) {
@@ -93,8 +94,7 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
           offset += 5;
           // Read address
           //tx.amount = response.slice(offset, offset + 8).toString('hex');
-          tx.amount = new Int64(response.readUInt32LE(offset + 4),
-            response.readUInt32LE(offset)).toOctetString();
+          tx.amount = new Int64(response.readUInt32LE(offset + 4), response.readUInt32LE(offset)).toOctetString();
           offset += 9;
           // Check if at the end
           result['tx' + index ] = tx;

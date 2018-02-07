@@ -140,7 +140,11 @@ describe('testBase58Encode', () => {
         return ledger.testBase58Encode(address);
       })
       .then(res => done(res))
-      .catch(error => done());
+      .catch((error) => {
+        expect(error).to.have.string('5001');
+        done();
+      })
+      .catch(error => done(error));
   });
 
   it('Should reject invalid hexadecimal characters', (done) => {
