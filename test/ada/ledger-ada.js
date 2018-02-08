@@ -9,20 +9,19 @@ const utils = require('../../src/utils');
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.testBase58Encode = function(txHex) {
-  var headerLength = 9;
+
   var tx = new Buffer(txHex, 'hex');
   var offset = 0;
 
-  var buffer = Buffer.alloc(headerLength + tx.length);
+  var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + tx.length);
   buffer[0] = 0x80;
   buffer[1] = 0x08;
   buffer[2] = 0x00;
   buffer[3] = 0x00;
-  buffer[4] = 0x00;
-  buffer.writeUInt32BE( tx.length, 5);
+  buffer.writeUInt32BE( tx.length, 4);
 
   // Body
-  tx.copy(buffer, headerLength, offset, offset + tx.length);
+  tx.copy(buffer, LedgerAda.OFFSET_CDATA, offset, offset + tx.length);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -46,27 +45,25 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
   var apdus = [];
   var response = [];
   var offset = 0;
-  var headerLength = 9;
   var tx = new Buffer(txHex, 'hex');
   var self = this;
 
-  var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+  var maxChunkSize = LedgerAda.MAX_APDU_SIZE - LedgerAda.OFFSET_CDATA;
   var isSingleAPDU = tx.length < maxChunkSize;
 
   while (offset != tx.length) {
     var isLastAPDU = tx.length - offset < maxChunkSize;
     var chunkSize = (isLastAPDU ? tx.length - offset : maxChunkSize);
 
-    var buffer = new Buffer(headerLength + chunkSize);
+    var buffer = new Buffer(LedgerAda.OFFSET_CDATA + chunkSize);
     // Header
     buffer[0] = 0x80;
-    buffer[1] = 0x09;
+    buffer[1] = 0x05;
     buffer[2] = (offset == 0 ? 0x01 : 0x02);
     buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
-    buffer[4] = 0x00;
-    buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 5);
-    // Body
-    tx.copy(buffer, headerLength, offset, offset + chunkSize);
+    buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 4);
+    // Data
+    tx.copy(buffer, LedgerAda.OFFSET_CDATA, offset, offset + chunkSize);
     apdus.push(buffer.toString('hex'));
 
     offset += chunkSize;
@@ -119,27 +116,25 @@ LedgerAda.prototype.testHashTransaction = function(txHex) {
   var apdus = [];
   var response = [];
   var offset = 0;
-  var headerLength = 9;
   var tx = new Buffer(txHex, 'hex');
   var self = this;
 
-  var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+  var maxChunkSize = LedgerAda.MAX_APDU_SIZE - LedgerAda.OFFSET_CDATA;
   var isSingleAPDU = tx.length < maxChunkSize;
 
   while (offset != tx.length) {
     var isLastAPDU = tx.length - offset < maxChunkSize;
     var chunkSize = (isLastAPDU ? tx.length - offset : maxChunkSize);
 
-    var buffer = new Buffer(headerLength + chunkSize);
+    var buffer = new Buffer(LedgerAda.OFFSET_CDATA + chunkSize);
     // Header
     buffer[0] = 0x80;
-    buffer[1] = 0x04;
+    buffer[1] = 0x05;
     buffer[2] = (offset == 0 ? 0x01 : 0x02);
-    buffer[3] = (isSingleAPDU ? 0x00 : 0x02);
-    buffer[4] = 0x00;
-    buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 5);
-    // Body
-    tx.copy(buffer, headerLength, offset, offset + chunkSize);
+    buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
+    buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 4);
+    // Data
+    tx.copy(buffer, LedgerAda.OFFSET_CDATA, offset, offset + chunkSize);
     apdus.push(buffer.toString('hex'));
 
     offset += chunkSize;

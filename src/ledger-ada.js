@@ -17,13 +17,13 @@
 
 /*
  * ADA APDU I/O Buffer Structure
- *
+ * // Header
  * buffer[0] = APDU IDENTIFIER
  * buffer[1] = INSTRUCITON NO
  * buffer[2] = P1 VALUE
  * buffer[3] = P2 VALUE
  * buffer[4] = CDATA_LENGTH
- * buffer[5] = PATH_LENGTH
+ * // Data
  * buffer[...] = DATA
  * buffer[END] = 0x9000 OKAY
  */
@@ -64,12 +64,15 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
     return result;
   }
 
-  var buffer = Buffer.alloc(8);
+  var buffer = Buffer.alloc(LedgerAda.OFFEST_CDATA + 4);
   buffer[0] = 0x80;
   buffer[1] = 0x02;
   buffer[2] = 0x02;
   buffer[3] = 0x00;
-  buffer.writeUInt32BE(index, 4);
+  // Data Length
+  buffer.writeUInt32BE(4, LedgerAda.OFFEST_LC);
+  // Data
+  buffer.writeUInt32BE(index, LedgerAda.OFFEST_CDATA);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -88,13 +91,14 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
-  var buffer = Buffer.alloc(8);
+  var buffer = Buffer.alloc(LedgerAda.OFFEST_CDATA);
 
   buffer[0] = 0x80;
   buffer[1] = 0x02;
   buffer[2] = 0x01;
   buffer[3] = 0x00;
-  buffer.writeUInt32BE(0, 4);
+  // Data Length
+  buffer.writeUInt32BE(0, LedgerAda.OFFEST_LC);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -117,7 +121,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   var apdus = [];
   var response = [];
   var offset = 0;
-  var headerLength = 9;
+  var headerLength = LedgerAda.OFFEST_CDATA;
   var tx = '';
   var self = this;
 
@@ -148,8 +152,8 @@ LedgerAda.prototype.setTransaction = function(txHex) {
     buffer[1] = 0x05;
     buffer[2] = (offset == 0 ? 0x01 : 0x02);
     buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
-    buffer[4] = 0x00;
-    buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 5);
+    buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 4);
+    // Body
     // Body
     tx.copy(buffer, headerLength, offset, offset + chunkSize);
 
@@ -176,7 +180,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
       result['resp'] = apduResponse.toString('hex');
       if(apduResponse.length > LedgerAda.CODE_LENGTH) {
         response = Buffer.from(apduResponse, 'hex');
-        var offset = 0;        
+        var offset = 0;
         result['TxInputCount'] = response.readUInt8(offset++);
         result['TxOutputCount'] = response.readUInt8(offset++);
         for(var i=0; i<result['TxOutputCount']; i++) {
@@ -222,8 +226,10 @@ LedgerAda.prototype.signTransactionWithIndex = function(index) {
   buffer[1] = 0x06;
   buffer[2] = 0x00;
   buffer[3] = 0x00;
-  buffer.writeUInt32BE( index, 4);
-  // Body
+  // Data Length
+  buffer.writeUInt32BE(4, LedgerAda.OFFEST_LC);
+  // Data
+  buffer.writeUInt32BE(index, LedgerAda.OFFEST_CDATA);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(apduResponse) {
     var result = {};
@@ -249,5 +255,7 @@ LedgerAda.TX_HASH_SIZE = 64;
 LedgerAda.MAX_CHUNK_SIZE = 64;
 LedgerAda.MAX_TX_LENGTH = 2000;
 LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
+LedgerAda.OFFEST_CDATA = 8;
+LedgerAda.OFFEST_LC = 4;
 
 module.exports = LedgerAda;
