@@ -64,15 +64,15 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
     return result;
   }
 
-  var buffer = Buffer.alloc(LedgerAda.OFFEST_CDATA + 4);
+  var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + 4);
   buffer[0] = 0x80;
   buffer[1] = 0x02;
   buffer[2] = 0x02;
   buffer[3] = 0x00;
   // Data Length
-  buffer.writeUInt32BE(4, LedgerAda.OFFEST_LC);
+  buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
   // Data
-  buffer.writeUInt32BE(index, LedgerAda.OFFEST_CDATA);
+  buffer.writeUInt32BE(index, LedgerAda.OFFSET_CDATA);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -91,14 +91,14 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
-  var buffer = Buffer.alloc(LedgerAda.OFFEST_CDATA);
+  var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
 
   buffer[0] = 0x80;
   buffer[1] = 0x02;
   buffer[2] = 0x01;
   buffer[3] = 0x00;
   // Data Length
-  buffer.writeUInt32BE(0, LedgerAda.OFFEST_LC);
+  buffer.writeUInt32BE(0, LedgerAda.OFFSET_LC);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
@@ -121,7 +121,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   var apdus = [];
   var response = [];
   var offset = 0;
-  var headerLength = LedgerAda.OFFEST_CDATA;
+  var headerLength = LedgerAda.OFFSET_CDATA;
   var tx = '';
   var self = this;
 
@@ -227,9 +227,9 @@ LedgerAda.prototype.signTransactionWithIndex = function(index) {
   buffer[2] = 0x00;
   buffer[3] = 0x00;
   // Data Length
-  buffer.writeUInt32BE(4, LedgerAda.OFFEST_LC);
+  buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
   // Data
-  buffer.writeUInt32BE(index, LedgerAda.OFFEST_CDATA);
+  buffer.writeUInt32BE(index, LedgerAda.OFFSET_CDATA);
 
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(apduResponse) {
     var result = {};
@@ -255,7 +255,7 @@ LedgerAda.TX_HASH_SIZE = 64;
 LedgerAda.MAX_CHUNK_SIZE = 64;
 LedgerAda.MAX_TX_LENGTH = 2000;
 LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
-LedgerAda.OFFEST_CDATA = 8;
-LedgerAda.OFFEST_LC = 4;
+LedgerAda.OFFSET_CDATA = 8;
+LedgerAda.OFFSET_LC = 4;
 
 module.exports = LedgerAda;
