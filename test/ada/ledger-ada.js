@@ -9,7 +9,6 @@ const utils = require('../../src/utils');
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.testBase58Encode = function(txHex) {
-
   var tx = new Buffer(txHex, 'hex');
   var offset = 0;
 
