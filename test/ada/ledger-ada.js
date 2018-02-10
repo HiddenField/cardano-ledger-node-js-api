@@ -14,7 +14,7 @@ LedgerAda.prototype.testBase58Encode = function(txHex) {
 
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + tx.length);
   buffer[0] = 0x80;
-  buffer[1] = 0x08;
+  buffer[1] = LedgerAda.INS_BASE58_ENCODE_TEST;
   buffer[2] = 0x00;
   buffer[3] = 0x00;
   buffer.writeUInt32BE( tx.length, 4);
@@ -57,7 +57,7 @@ LedgerAda.prototype.testCBORDecode = function(txHex) {
     var buffer = new Buffer(LedgerAda.OFFSET_CDATA + chunkSize);
     // Header
     buffer[0] = 0x80;
-    buffer[1] = 0x05;
+    buffer[1] = LedgerAda.INS_CBOR_DECODE_TEST;
     buffer[2] = (offset == 0 ? 0x01 : 0x02);
     buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
     buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 4);
@@ -129,7 +129,7 @@ LedgerAda.prototype.testHashTransaction = function(txHex) {
     var buffer = new Buffer(LedgerAda.OFFSET_CDATA + chunkSize);
     // Header
     buffer[0] = 0x80;
-    buffer[1] = 0x05;
+    buffer[1] = LedgerAda.INS_BLAKE2B_TEST;
     buffer[2] = (offset == 0 ? 0x01 : 0x02);
     buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
     buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 4);
