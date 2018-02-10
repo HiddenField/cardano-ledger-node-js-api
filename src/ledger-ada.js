@@ -255,19 +255,14 @@ LedgerAda.TX_HASH_SIZE = 64;
 LedgerAda.MAX_APDU_SIZE = 64;
 LedgerAda.MAX_TX_LENGTH = 2000;
 LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
-<<<<<<< HEAD
-LedgerAda.OFFEST_CDATA = 8;
-LedgerAda.OFFEST_LC = 4;
-// Instruction Setup - Should match main.c
-LedgerAda.INS_GET_PUBLIC_KEY = 0x01;
-LedgerAda.INS_SET_TX = 0x02;
-LedgerAda.INS_SIGN_TX = 0x03;
-LedgerAda.INS_BLAKE2B_TEST = 0x07;
-LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
-LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
-=======
 LedgerAda.OFFSET_CDATA = 8;
 LedgerAda.OFFSET_LC = 4;
->>>>>>> develop
+// Instruction Setup - Should match main.c
+LedgerAda.INS_GET_PUBLIC_KEY = 0x02;
+LedgerAda.INS_SET_TX = 0x05;
+LedgerAda.INS_SIGN_TX = 0x06;
+LedgerAda.INS_BLAKE2B_TEST = 0x04;
+LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
+LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
 
 module.exports = LedgerAda;
