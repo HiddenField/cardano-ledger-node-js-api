@@ -66,7 +66,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
 
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + 4);
   buffer[0] = 0x80;
-  buffer[1] = 0x02;
+  buffer[1] = LedgerAda.INS_GET_PUBLIC_KEY;
   buffer[2] = 0x02;
   buffer[3] = 0x00;
   // Data Length
@@ -94,7 +94,7 @@ LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
 
   buffer[0] = 0x80;
-  buffer[1] = 0x02;
+  buffer[1] = LedgerAda.INS_GET_PUBLIC_KEY;
   buffer[2] = 0x01;
   buffer[3] = 0x00;
   // Data Length
@@ -131,7 +131,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
     return Q.reject(error);
   }
 
-  var maxChunkSize = LedgerAda.MAX_CHUNK_SIZE - headerLength;
+  var maxChunkSize = LedgerAda.MAX_APDU_SIZE - headerLength;
   var isSingleAPDU = tx.length < maxChunkSize;
 
   console.log("Transaction Length[" + tx.length + "]");
@@ -149,7 +149,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
     var buffer = new Buffer(headerLength + chunkSize);
     // Header
     buffer[0] = 0x80;
-    buffer[1] = 0x05;
+    buffer[1] = LedgerAda.INS_SET_TX;
     buffer[2] = (offset == 0 ? 0x01 : 0x02);
     buffer[3] = (isSingleAPDU ? 0x01 : 0x02);
     buffer.writeUInt32BE( offset == 0 ? tx.length : chunkSize, 4);
@@ -223,7 +223,7 @@ LedgerAda.prototype.signTransactionWithIndex = function(index) {
   var buffer = new Buffer(headerLength + 4);
   // Header
   buffer[0] = 0x80;
-  buffer[1] = 0x06;
+  buffer[1] = LedgerAda.INS_SIGN_TX;
   buffer[2] = 0x00;
   buffer[3] = 0x00;
   // Data Length
@@ -252,10 +252,17 @@ LedgerAda.SUCCESS_CODE = "9000";
 LedgerAda.CODE_LENGTH = 4;
 LedgerAda.AMOUNT_SIZE = 8;
 LedgerAda.TX_HASH_SIZE = 64;
-LedgerAda.MAX_CHUNK_SIZE = 64;
+LedgerAda.MAX_APDU_SIZE = 64;
 LedgerAda.MAX_TX_LENGTH = 2000;
 LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
 LedgerAda.OFFSET_CDATA = 8;
 LedgerAda.OFFSET_LC = 4;
+// Instruction Setup - Should match main.c
+LedgerAda.INS_GET_PUBLIC_KEY = 0x01;
+LedgerAda.INS_SET_TX = 0x02;
+LedgerAda.INS_SIGN_TX = 0x03;
+LedgerAda.INS_BLAKE2B_TEST = 0x07;
+LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
+LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
 
 module.exports = LedgerAda;
