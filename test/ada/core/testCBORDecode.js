@@ -125,6 +125,22 @@ describe('testCBORDecode', () => {
         done()
       });
   });
+
+  it('Should reject a transaction with no outputs', (done) => {
+   const tx = '839f8200d818582682582060fc8fbdd6ff6c3b455d8a5b9f86d33f4137c45ece43abb86e04671254e12c08197a8bff9fffa0';
+
+    getLedger()
+      .then((device) => {
+        ledger = device;
+        return ledger.testCBORDecode(tx);
+      })
+      .then(res => done(res))
+      .catch((error) => {
+        // 5904: < 1 tx output
+        expect(error).to.have.string('5904');
+        done()
+      });
+  });
   
   it('Should reject a transaction with invalid input', (done) => {
     const tx = '839F8200D8180026820020E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861B0037699E3EA6D064FFA0';
