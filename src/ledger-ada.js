@@ -255,8 +255,8 @@ LedgerAda.TX_HASH_SIZE = 64;
 LedgerAda.MAX_APDU_SIZE = 64;
 LedgerAda.MAX_TX_LENGTH = 2000;
 LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
-LedgerAda.OFFEST_CDATA = 8;
-LedgerAda.OFFEST_LC = 4;
+LedgerAda.OFFSET_CDATA = 8;
+LedgerAda.OFFSET_LC = 4;
 // Instruction Setup - Should match main.c
 LedgerAda.INS_GET_PUBLIC_KEY = 0x01;
 LedgerAda.INS_SET_TX = 0x02;
