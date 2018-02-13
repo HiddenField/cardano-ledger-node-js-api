@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { getLedger } = require('../utils');
 
 describe('testCBORDecode', () => {
-  let legder = {};
+  let ledger = {};
 
   afterEach(() => {
     ledger.comm.close_async()

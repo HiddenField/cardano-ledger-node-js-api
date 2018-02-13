@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { getLedger } = require('../utils');
 
 describe('testBase58Encode', () => {
-  let legder = {};
+  let ledger = {};
 
   afterEach(() => {
     ledger.comm.close_async()
