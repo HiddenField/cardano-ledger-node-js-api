@@ -187,7 +187,7 @@ describe('testHashTransaction', () => {
         ledger = device;
         return Promise.all(addresses.map(address => ledger.testHashTransaction(address)));
       })
-      .then(responses => {
+      .then((responses) => {
         responses.forEach((res) => {
           expect(res[1].tx).to.equal('40eaf5b817d73e4c239caf6b11c554fcb58a77e7a7f8635e4e1d5900cc3ae947');
         });

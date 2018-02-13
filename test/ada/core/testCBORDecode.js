@@ -93,10 +93,10 @@ describe('testCBORDecode', () => {
       })
       .catch(error => done(error));
   });
- 
-  it('Should reject a transaction sending over 64bit integer limit', (done) => {
-    const tx = '839F8200D8185826825820E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861BFFFFFFFFFFFFFFFF01A0';
 
+  it('Should reject a transaction with invalid input', (done) => {
+    const tx = '839F8200D8180026820020E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861B0037699E3EA6D064FFA0';
+ 
     getLedger()
       .then((device) => {
         ledger = device;
@@ -104,12 +104,11 @@ describe('testCBORDecode', () => {
       })
       .then(res => done(res))
       .catch((error) => {
-        // 5903: Invalid TX Output
-        expect(error).to.have.string('5903');
+        expect(error).to.have.string('5901');
         done()
       });
   });
-  
+
   it('Should reject a transaction with no inputs', (done) => {
     const tx = '8381810082828283581CE6E37D78F4326709AF13851862E075BCE800D06401AD5C370D4D48E8A20058208200581C23F1DE5619369C763E19835E0CB62C255C3FCA80AA13057A1760E804014F4E4CED4AA010522E84B8E70A121894001AE41EF3231B0075FAE341E48715828283581CFD9104B3EFB4C7425D697EEB3EFC723EF4FF469E7F37F41A5AFF78A9A20058208200581C53345E24A7A30EC701611C7E9D0593C41D6EA335B2EB195C9A0D2238015818578B485ADC9D142B1E692DE1FD5929ACFC5A31332938F192011AD0FCDC751B0003D8257C6B4DB7A0';
  
@@ -120,14 +119,13 @@ describe('testCBORDecode', () => {
       })
       .then(res => done(res))
       .catch((error) => {
-        // 5902: Invalid TX (must have > 0 inputs)
         expect(error).to.have.string('5902');
         done()
       });
   });
-
-  it('Should reject a transaction with no outputs', (done) => {
-   const tx = '839f8200d818582682582060fc8fbdd6ff6c3b455d8a5b9f86d33f4137c45ece43abb86e04671254e12c08197a8bff9fffa0';
+  
+  it('Should reject a transaction sending over 64bit integer limit', (done) => {
+    const tx = '839F8200D8185826825820E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861BFFFFFFFFFFFFFFFF01A0';
 
     getLedger()
       .then((device) => {
@@ -136,7 +134,21 @@ describe('testCBORDecode', () => {
       })
       .then(res => done(res))
       .catch((error) => {
-        // 5904: < 1 tx output
+        expect(error).to.have.string('5903');
+        done()
+      });
+  });
+
+  it('Should reject a transaction with no outputs', (done) => {
+    const tx = '839f8200d818582682582060fc8fbdd6ff6c3b455d8a5b9f86d33f4137c45ece43abb86e04671254e12c08197a8bff9fffa0';
+
+    getLedger()
+      .then((device) => {
+        ledger = device;
+        return ledger.testCBORDecode(tx);
+      })
+      .then(res => done(res))
+      .catch((error) => {
         expect(error).to.have.string('5904');
         done()
       });
@@ -152,7 +164,6 @@ describe('testCBORDecode', () => {
       })
       .then(res => done(res))
       .catch((error) => {
-        // 5905: < 1 tx output
         expect(error).to.have.string('5905');
         done()
       });
@@ -168,24 +179,7 @@ describe('testCBORDecode', () => {
       })
       .then(res => done(res))
       .catch((error) => {
-        // 5906: < 1 tx output
         expect(error).to.have.string('5906');
-        done()
-      });
-  });
-  
-  it('Should reject a transaction with invalid input', (done) => {
-    const tx = '839F8200D8180026820020E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861B0037699E3EA6D064FFA0';
- 
-    getLedger()
-      .then((device) => {
-        ledger = device;
-        return ledger.testCBORDecode(tx);
-      })
-      .then(res => done(res))
-      .catch((error) => {
-        // 5901: Invalid TX Output
-        expect(error).to.have.string('5901');
         done()
       });
   });
@@ -208,6 +202,30 @@ describe('testCBORDecode', () => {
       })
       .then((res) => {
         expect(res.length).to.equal(0);
+        done();
+      })
+      .catch(error => done(error));
+  });
+
+  it('Should decode CBOR 10 times', (done) => {
+    const length = 10;
+    const tx = '839F8200D8185826825820E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861B0037699E3EA6D064FFA0';
+    const txs = Array.from({ length }, (v, i) => tx);
+
+    getLedger()
+      .then((device) => {
+        ledger = device;
+        return Promise.all(txs.map(tx => ledger.testCBORDecode(tx)));
+      })
+      .then((responses) => {
+        console.log(responses);
+        responses.forEach((res) => {
+          const amount = new Int64(15597252095955044);
+
+          expect(res[2].txInputs).to.equal(1);
+          expect(res[2].txOutputs).to.equal(1);
+          expect(res[2].tx0.amount).to.equal(amount.toOctetString());
+        });
         done();
       })
       .catch(error => done(error));
