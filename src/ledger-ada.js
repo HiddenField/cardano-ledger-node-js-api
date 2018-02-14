@@ -206,13 +206,13 @@ LedgerAda.prototype.setTransaction = function(txHex) {
 
 
 /**
- * Sign the set transaction with the given indecies.
+ * Sign the set transaction with the given indexes.
  * Note that setTransaction must be called prior to this being called.
  *
- * @param {Array[Number]} indecies The indecies of the keys to be used for signing.
+ * @param {Array[Number]} indexes The indexes of the keys to be used for signing.
  * @returns {Promise<Object>} The response from the device.
  */
-LedgerAda.prototype.signTransactionWithIndecies = function(indecies) {
+LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
   var apdus = [];
   var response = [];
   var offset = 0;
@@ -220,11 +220,11 @@ LedgerAda.prototype.signTransactionWithIndecies = function(indecies) {
   var tx = '';
   var self = this;
 
-  var signingCounter = indecies.length;
+  var signingCounter = indexes.length;
 
-  for(var i = 0; i<indecies.length; i++) {
+  for(var i = 0; i<indexes.length; i++) {
 
-    if(isNaN(indecies[i])) {
+    if(isNaN(indexes[i])) {
       var result = {};
       result['success'] = false;
       result['code'] = LedgerAda.Error.INDEX_NAN;
@@ -241,7 +241,7 @@ LedgerAda.prototype.signTransactionWithIndecies = function(indecies) {
     // Data Length
     buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
     // Data
-    buffer.writeUInt32BE(indecies[i], LedgerAda.OFFSET_CDATA);
+    buffer.writeUInt32BE(indexes[i], LedgerAda.OFFSET_CDATA);
 
     apdus.push(buffer.toString('hex'));
 
@@ -265,19 +265,19 @@ LedgerAda.prototype.signTransactionWithIndecies = function(indecies) {
 }
 
 /**
- * Sets and signs the passed in transaction with the array of indecies.
+ * Sets and signs the passed in transaction with the array of indexes.
  *
  * @param {String} txHex The transaction to be set.
- * @param {Array[Number]} indecies The indecies of the keys to be used for signing.
+ * @param {Array[Number]} indexes The indexes of the keys to be used for signing.
  * @returns {Promise<Object>} The response from the device.
  */
-LedgerAda.prototype.signTransaction = function(txHex, indecies) {
+LedgerAda.prototype.signTransaction = function(txHex, indexes) {
 
     var self = this;
 
     return this.setTransaction(txHex)
     .then( function(result) {
-        return self.signTransactionWithIndecies(indecies)});
+        return self.signTransactionWithIndexes(indexes)});
 
 }
 
