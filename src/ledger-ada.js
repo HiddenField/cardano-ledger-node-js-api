@@ -275,7 +275,8 @@ LedgerAda.INS_BLAKE2B_TEST = 0x07;
 LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
 LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
 // Error Codes
-LedgerAda.Error.EMAX_TX_HEX_LENGTH_EXCEEDED = 5001;
+LedgerAda.Error = {};
+LedgerAda.Error.MAX_TX_HEX_LENGTH_EXCEEDED = 5001;
 LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
 LedgerAda.Error.INDEX_NAN = 5003;
 
