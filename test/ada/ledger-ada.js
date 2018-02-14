@@ -8,6 +8,15 @@ const utils = require('../../src/utils');
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.testBase58Encode = function(txHex) {
+
+  if(txHex.length > LedgerAda.MAX_MSG_LENGTH * 2) {
+    var result = {};
+    result['success'] = false;
+    result['code'] = LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED;
+    result['error'] = "Transaction is too large. Must be less than " + LedgerAda.MAX_MSG_LENGTH + "bytes.";
+    return Q.reject(result);
+  }
+
   var tx = new Buffer(txHex, 'hex');
   var offset = 0;
 

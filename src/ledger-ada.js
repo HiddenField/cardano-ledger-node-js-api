@@ -60,8 +60,9 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   if(isNaN(index)) {
     var result = {};
     result['success'] = false;
+    result['code'] = LedgerAda.Error.INDEX_NAN;
     result['error'] = "Address index is not a number."
-    return result;
+    return Q.reject(result);
   }
 
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + 4);
@@ -218,6 +219,14 @@ LedgerAda.prototype.signTransactionWithIndex = function(index) {
   var offset = headerLength;
   var self = this;
 
+  if(isNaN(index)) {
+    var result = {};
+    result['success'] = false;
+    result['code'] = LedgerAda.INS_GET_PUBLIC_KEY;
+    result['error'] = "Address index is not a number."
+    return Q.reject(result);
+  }
+
   console.log("Signing with address index[" + index + "]");
 
   var buffer = new Buffer(headerLength + 4);
@@ -253,7 +262,8 @@ LedgerAda.CODE_LENGTH = 4;
 LedgerAda.AMOUNT_SIZE = 8;
 LedgerAda.TX_HASH_SIZE = 64;
 LedgerAda.MAX_APDU_SIZE = 64;
-LedgerAda.MAX_TX_LENGTH = 2000;
+LedgerAda.MAX_TX_HEX_LENGTH = 2048;
+LedgerAda.MAX_MSG_LENGTH = 248;
 LedgerAda.MAX_ADDR_PRINT_LENGTH = 12;
 LedgerAda.OFFSET_CDATA = 8;
 LedgerAda.OFFSET_LC = 4;
@@ -264,5 +274,9 @@ LedgerAda.INS_SIGN_TX = 0x03;
 LedgerAda.INS_BLAKE2B_TEST = 0x07;
 LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
 LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
+// Error Codes
+LedgerAda.Error.EMAX_TX_HEX_LENGTH_EXCEEDED = 5001;
+LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
+LedgerAda.Error.INDEX_NAN = 5003;
 
 module.exports = LedgerAda;
