@@ -60,7 +60,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   if(isNaN(index)) {
     var result = {};
     result['success'] = false;
-    result['code'] = LedgerAda.INDEX_NAN;
+    result['code'] = LedgerAda.Error.INDEX_NAN;
     result['error'] = "Address index is not a number."
     return Q.reject(result);
   }
@@ -275,7 +275,7 @@ LedgerAda.INS_BLAKE2B_TEST = 0x07;
 LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
 LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
 // Error Codes
-LedgerAda.Error.MAX_TX_HEX_LENGTH_EXCEEDED = 5001;
+LedgerAda.Error.EMAX_TX_HEX_LENGTH_EXCEEDED = 5001;
 LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
 LedgerAda.Error.INDEX_NAN = 5003;
 
