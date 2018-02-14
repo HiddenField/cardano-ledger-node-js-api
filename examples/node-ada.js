@@ -122,7 +122,7 @@ ledger
 			*/
 /*
 			console.log("\n\n\nSTART - Signing with index");
-			ada.signTransactionWithIndex(0).then(
+			ada.signTransaction(testTX, [1,2]).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Signing Index\n\n\n");

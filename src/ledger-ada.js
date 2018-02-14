@@ -171,8 +171,8 @@ LedgerAda.prototype.setTransaction = function(txHex) {
       var result = {};
 
       var responseHexLength = apduResponse.toString('hex').length;
-      console.log("FROM[" + (responseHexLength-4) + "] TO[" + responseHexLength + "]")
-      console.log("SLICE:" + apduResponse.slice(responseHexLength-4, responseHexLength).toString('hex'));
+      //console.log("FROM[" + (responseHexLength-4) + "] TO[" + responseHexLength + "]")
+      //console.log("SLICE:" + apduResponse.slice(responseHexLength-4, responseHexLength).toString('hex'));
 
       result['success'] = "9000" ===
         apduResponse.slice(responseHexLength - LedgerAda.CODE_LENGTH, responseHexLength) ?
@@ -204,57 +204,81 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   });
 }
 
+
 /**
- * Sign the set transaction with the given index.
+ * Sign the set transaction with the given indecies.
  * Note that setTransaction must be called prior to this being called.
  *
- * @param {Number} index The index of the key to be used for signing.
+ * @param {Array[Number]} indecies The indecies of the keys to be used for signing.
  * @returns {Promise<Object>} The response from the device.
  */
-LedgerAda.prototype.signTransactionWithIndex = function(index) {
+LedgerAda.prototype.signTransactionWithIndecies = function(indecies) {
   var apdus = [];
   var response = [];
   var offset = 0;
-  var headerLength = 8;
-  var offset = headerLength;
+  var headerLength = LedgerAda.OFFSET_CDATA;
+  var tx = '';
   var self = this;
 
-  if(isNaN(index)) {
-    var result = {};
-    result['success'] = false;
-    result['code'] = LedgerAda.INS_GET_PUBLIC_KEY;
-    result['error'] = "Address index is not a number."
-    return Q.reject(result);
+  var signingCounter = indecies.length;
+
+  for(var i = 0; i<indecies.length; i++) {
+
+    if(isNaN(indecies[i])) {
+      var result = {};
+      result['success'] = false;
+      result['code'] = LedgerAda.Error.INDEX_NAN;
+      result['error'] = "Address index is not a number."
+      return Q.reject(result);
+    }
+
+    var buffer = new Buffer(headerLength + 4);
+    // Header
+    buffer[0] = 0x80;
+    buffer[1] = LedgerAda.INS_SIGN_TX;
+    buffer[2] = 0x00;
+    buffer[3] = 0x00;
+    // Data Length
+    buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
+    // Data
+    buffer.writeUInt32BE(indecies[i], LedgerAda.OFFSET_CDATA);
+
+    apdus.push(buffer.toString('hex'));
+
   }
 
-  console.log("Signing with address index[" + index + "]");
+  return utils.foreach(apdus, function(apdu) {
+    return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
+      var result = {};
 
-  var buffer = new Buffer(headerLength + 4);
-  // Header
-  buffer[0] = 0x80;
-  buffer[1] = LedgerAda.INS_SIGN_TX;
-  buffer[2] = 0x00;
-  buffer[3] = 0x00;
-  // Data Length
-  buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
-  // Data
-  buffer.writeUInt32BE(index, LedgerAda.OFFSET_CDATA);
+      var responseHexLength = apduResponse.toString('hex').length;
+      response = Buffer.from(response, 'hex');
 
-  return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(apduResponse) {
-    var result = {};
+      result['success'] = "9000" ===
+        apduResponse.slice(responseHexLength-4, responseHexLength) ?
+        true : false;
+      result['digest'] = apduResponse.slice(0, responseHexLength-4);
 
-    var responseHexLength = apduResponse.toString('hex').length;
-    response = Buffer.from(response, 'hex');
-
-    result['success'] = "9000" ===
-      apduResponse.slice(responseHexLength-4, responseHexLength) ?
-      true : false;
-    result['respLength'] = apduResponse.toString('hex').length;
-    result['resp'] = apduResponse.toString('hex');
-
-    return result;
-
+      return result;
+    });
   });
+}
+
+/**
+ * Sets and signs the passed in transaction with the array of indecies.
+ *
+ * @param {String} txHex The transaction to be set.
+ * @param {Array[Number]} indecies The indecies of the keys to be used for signing.
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.signTransaction = function(txHex, indecies) {
+
+    var self = this;
+
+    return this.setTransaction(txHex)
+    .then( function(result) {
+        return self.signTransactionWithIndecies(indecies)});
+
 }
 
 LedgerAda.SUCCESS_CODE = "9000";
@@ -275,7 +299,8 @@ LedgerAda.INS_BLAKE2B_TEST = 0x07;
 LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
 LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
 // Error Codes
-LedgerAda.Error.EMAX_TX_HEX_LENGTH_EXCEEDED = 5001;
+LedgerAda.Error = {};
+LedgerAda.Error.MAX_TX_HEX_LENGTH_EXCEEDED = 5001;
 LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
 LedgerAda.Error.INDEX_NAN = 5003;
 
