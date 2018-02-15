@@ -171,8 +171,8 @@ LedgerAda.prototype.setTransaction = function(txHex) {
       var result = {};
 
       var responseHexLength = apduResponse.toString('hex').length;
-      console.log("FROM[" + (responseHexLength-4) + "] TO[" + responseHexLength + "]")
-      console.log("SLICE:" + apduResponse.slice(responseHexLength-4, responseHexLength).toString('hex'));
+      //console.log("FROM[" + (responseHexLength-4) + "] TO[" + responseHexLength + "]")
+      //console.log("SLICE:" + apduResponse.slice(responseHexLength-4, responseHexLength).toString('hex'));
 
       result['success'] = "9000" ===
         apduResponse.slice(responseHexLength - LedgerAda.CODE_LENGTH, responseHexLength) ?
@@ -204,57 +204,78 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   });
 }
 
+
 /**
- * Sign the set transaction with the given index.
+ * Sign the set transaction with the given indexes.
  * Note that setTransaction must be called prior to this being called.
  *
- * @param {Number} index The index of the key to be used for signing.
+ * @param {Array[Number]} indexes The indexes of the keys to be used for signing.
  * @returns {Promise<Object>} The response from the device.
  */
-LedgerAda.prototype.signTransactionWithIndex = function(index) {
+LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
   var apdus = [];
   var response = [];
   var offset = 0;
-  var headerLength = 8;
-  var offset = headerLength;
+  var headerLength = LedgerAda.OFFSET_CDATA;
+  var tx = '';
   var self = this;
 
-  if(isNaN(index)) {
-    var result = {};
-    result['success'] = false;
-    result['code'] = LedgerAda.INS_GET_PUBLIC_KEY;
-    result['error'] = "Address index is not a number."
-    return Q.reject(result);
+  var signingCounter = indexes.length;
+
+  for(var i = 0; i<indexes.length; i++) {
+
+    if(isNaN(indexes[i])) {
+      var result = {};
+      result['success'] = false;
+      result['code'] = LedgerAda.Error.INDEX_NAN;
+      result['error'] = "Address index is not a number."
+      return Q.reject(result);
+    }
+
+    var buffer = new Buffer(headerLength + 4);
+    // Header
+    buffer[0] = 0x80;
+    buffer[1] = LedgerAda.INS_SIGN_TX;
+    buffer[2] = 0x00;
+    buffer[3] = 0x00;
+    // Data Length
+    buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
+    // Data
+    buffer.writeUInt32BE(indexes[i], LedgerAda.OFFSET_CDATA);
+
+    apdus.push(buffer.toString('hex'));
+
   }
 
-  console.log("Signing with address index[" + index + "]");
+  return utils.foreach(apdus, function(apdu) {
+    return self.comm.exchange(apdu, [0x9000]).then(function(apduResponse) {
+      var result = {};
 
-  var buffer = new Buffer(headerLength + 4);
-  // Header
-  buffer[0] = 0x80;
-  buffer[1] = LedgerAda.INS_SIGN_TX;
-  buffer[2] = 0x00;
-  buffer[3] = 0x00;
-  // Data Length
-  buffer.writeUInt32BE(4, LedgerAda.OFFSET_LC);
-  // Data
-  buffer.writeUInt32BE(index, LedgerAda.OFFSET_CDATA);
+      var responseHexLength = apduResponse.toString('hex').length;
+      response = Buffer.from(response, 'hex');
 
-  return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(apduResponse) {
-    var result = {};
+      result['success'] = "9000" ===
+        apduResponse.slice(responseHexLength-4, responseHexLength) ?
+        true : false;
+      result['digest'] = apduResponse.slice(0, responseHexLength-4);
 
-    var responseHexLength = apduResponse.toString('hex').length;
-    response = Buffer.from(response, 'hex');
-
-    result['success'] = "9000" ===
-      apduResponse.slice(responseHexLength-4, responseHexLength) ?
-      true : false;
-    result['respLength'] = apduResponse.toString('hex').length;
-    result['resp'] = apduResponse.toString('hex');
-
-    return result;
-
+      return result;
+    });
   });
+}
+
+/**
+ * Sets and signs the passed in transaction with the array of indexes.
+ *
+ * @param {String} txHex The transaction to be set.
+ * @param {Array[Number]} indexes The indexes of the keys to be used for signing.
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.signTransaction = function(txHex, indexes) {
+
+    return this.setTransaction(txHex)
+    .then((result) => this.signTransactionWithIndexes(indexes));
+
 }
 
 LedgerAda.SUCCESS_CODE = "9000";
