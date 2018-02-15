@@ -1,5 +1,8 @@
+const { yellow } = require('chalk');
 const { comm_node } = require('../../src');
 const ada = require('./ledger-ada');
+
+const { argv } = process;
 
 /**
  * Convenience function for retrieving the ADA Ledger.
@@ -15,4 +18,17 @@ function getLedger() {
   });
 }
 
-module.exports = { getLedger };
+/**
+ * Convenience function for prompting user to interact with ledger device.
+ *
+ * If --headless is supplied, then this is suppressed.
+ */
+function promptUser(message) {
+  if (argv.includes('--headless')) return
+  console.log(yellow.bgBlack('\n LEDGER DEVICE ') + yellow(` ${message.toUpperCase()}\n`));
+}
+
+module.exports = { 
+  getLedger, 
+  promptUser,
+};

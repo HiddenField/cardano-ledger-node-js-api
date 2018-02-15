@@ -241,6 +241,37 @@ src/index.js:
     ...
     if (isNode || isElectron) ledger.comm_node = require('./ledger-comm-node');
 ```
+## Testing Cardano SL
+
+End-to-end tests are provided for both core functionality and the public API.
+
+
+### Core Tests
+
+First, ensure you have a **test** build installed on the device (see ledger app respository for details). Then run:
+
+```bash
+npm run ada-core-test
+```
+
+### API Tests
+
+These tests can be run with or without device interaction (headlessly).
+
+For tests which require user interaction, ensure you have a standard production build on the device, and run:
+
+```bash
+npm run ada-api-test
+```
+
+For headless tests, ensure you have a **headless** build on the device and run:
+
+```bash
+# Note the -- which is required to pass through arguments
+npm run ada-api-test -- --headless
+```
+
+This will suppress any additional prompts, for reduced verbosity.
 
 ## Notes for Cardano SL
 

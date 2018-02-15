@@ -135,18 +135,10 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   var maxChunkSize = LedgerAda.MAX_APDU_SIZE - headerLength;
   var isSingleAPDU = tx.length < maxChunkSize;
 
-  console.log("Transaction Length[" + tx.length + "]");
-  console.log("Transaction Buffer[" + tx.toString('hex') + "]");
-  console.log("Is Single APDU[" + isSingleAPDU + "]")
-  console.log("Max Chunk Size[" + maxChunkSize + "]");
-
   while (offset != tx.length) {
 
     var isLastAPDU = tx.length - offset < maxChunkSize;
     var chunkSize = (isLastAPDU ? tx.length - offset : maxChunkSize);
-
-    console.log("Data Size[" + chunkSize + "]");
-
     var buffer = new Buffer(headerLength + chunkSize);
     // Header
     buffer[0] = 0x80;
@@ -158,12 +150,9 @@ LedgerAda.prototype.setTransaction = function(txHex) {
     // Body
     tx.copy(buffer, headerLength, offset, offset + chunkSize);
 
-
     apdus.push(buffer.toString('hex'));
-    console.log("APDU Buffer[" + buffer.toString('hex') + "]");
 
     offset += chunkSize;
-
   }
 
   return utils.foreach(apdus, function(apdu) {
