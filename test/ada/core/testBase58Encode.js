@@ -141,7 +141,7 @@ describe('testBase58Encode', () => {
       })
       .then(res => done(res))
       .catch((error) => {
-        expect(error).to.have.string('5001');
+        expect(error).to.have.string('5002');
         done();
       })
       .catch(error => done(error));
