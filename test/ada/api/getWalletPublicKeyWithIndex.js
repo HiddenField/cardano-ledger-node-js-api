@@ -27,6 +27,37 @@ describe('getWalletPublicKeyWithIndex', () => {
       })
       .catch((error) => done(error));
   });
+  
+  it('Should return same public key with same index consistently', (done) => {
+    const index = 0xFEEDBEEF;
+    let response = {};
+
+    getLedger()
+      .then((device) => {
+        ledger = device;
+        promptUser('Please accept public key request');
+
+        return ledger.getWalletPublicKeyWithIndex(index);
+      })
+      .then((res) => {
+        expect(res).to.have.property('publicKey');
+        response = res;
+        promptUser('Please accept public key request');
+
+        return ledger.getWalletPublicKeyWithIndex(index);
+      })
+      .then((res) => {
+        expect(res.publicKey).to.equal(response.publicKey);
+        promptUser('Please accept public key request');
+
+        return ledger.getWalletPublicKeyWithIndex(index);
+      })
+      .then((res) => {
+        expect(res.publicKey).to.equal(response.publicKey);
+        done();
+      })
+      .catch((error) => done(error));
+  });
 
   it('Should successfully get public key for lowest hardened index (0x80000000)', (done) => {
     const index = 0x80000000;
