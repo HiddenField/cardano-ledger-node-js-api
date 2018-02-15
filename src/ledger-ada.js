@@ -273,11 +273,8 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
  */
 LedgerAda.prototype.signTransaction = function(txHex, indexes) {
 
-    var self = this;
-
     return this.setTransaction(txHex)
-    .then( function(result) {
-        return self.signTransactionWithIndexes(indexes)});
+    .then((result) => this.signTransactionWithIndexes(indexes));
 
 }
 
