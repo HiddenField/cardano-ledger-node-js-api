@@ -58,11 +58,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   // Nano S can only derive hardened addresses on ED25519 curve.
 
   if(isNaN(index)) {
-    var result = {};
-    result['success'] = false;
-    result['code'] = LedgerAda.Error.INDEX_NAN;
-    result['error'] = "Address index is not a number."
-    return Q.reject(result);
+    return Q.reject("Invalid status " + LedgerAda.Error.INDEX_NAN);
   }
 
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + 4);
