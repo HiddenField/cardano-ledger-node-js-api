@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { getLedger } = require('../utils');
 
 describe('testHashTransaction', () => {
-  let legder = {};
+  let ledger = {};
 
   afterEach(() => {
     ledger.comm.close_async()
@@ -146,11 +146,12 @@ describe('testHashTransaction', () => {
         ledger = device;
         return ledger.testHashTransaction(address);
       })
-      .then(res => {
-        console.log(res);
-        done(res);
+      .then(res => done(res))
+      .catch((error) => {
+        expect(error).to.have.string('5001');
+        done();
       })
-      .catch(error => done());
+      .catch(error => done(error));
   });
 
   it('Should return empty for empty string', (done) => {
@@ -186,7 +187,7 @@ describe('testHashTransaction', () => {
         ledger = device;
         return Promise.all(addresses.map(address => ledger.testHashTransaction(address)));
       })
-      .then(responses => {
+      .then((responses) => {
         responses.forEach((res) => {
           expect(res[1].tx).to.equal('40eaf5b817d73e4c239caf6b11c554fcb58a77e7a7f8635e4e1d5900cc3ae947');
         });

@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { getLedger } = require('../utils');
 
 describe('testBase58Encode', () => {
-  let legder = {};
+  let ledger = {};
 
   afterEach(() => {
     ledger.comm.close_async()
@@ -140,7 +140,11 @@ describe('testBase58Encode', () => {
         return ledger.testBase58Encode(address);
       })
       .then(res => done(res))
-      .catch(error => done());
+      .catch((error) => {
+        expect(error).to.have.string('5002');
+        done();
+      })
+      .catch(error => done(error));
   });
 
   it('Should reject invalid hexadecimal characters', (done) => {
