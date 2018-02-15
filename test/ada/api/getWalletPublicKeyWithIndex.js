@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { getLedger, promptUser } = require('../utils');
+const { getLedger, promptUser, ifHeadlessIt } = require('../utils');
 
 describe('getWalletPublicKeyWithIndex', () => {
   let ledger = {};
@@ -106,7 +106,7 @@ describe('getWalletPublicKeyWithIndex', () => {
       });
   });
 
-  it('Should get public key 20 times (stress test)', (done) => {
+  ifHeadlessIt('Should get public key 20 times (stress test)', (done) => {
     getLedger()
       .then((device) => {
         ledger = device;
