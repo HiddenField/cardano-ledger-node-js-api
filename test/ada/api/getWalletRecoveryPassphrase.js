@@ -20,8 +20,8 @@ describe('getWalletRecoveryPassphrase', () => {
         return ledger.getWalletRecoveryPassphrase();
       })
       .then((res) => {
-        expect(res).to.have.property('publicKey');
-        expect(res).to.have.property('chainCode');
+        expect(res.publicKey).to.have.lengthOf(64);
+        expect(res.chainCode).to.have.lengthOf(64);
         done();
       })
       .catch((error) => done(error));

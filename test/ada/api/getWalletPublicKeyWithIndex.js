@@ -22,7 +22,7 @@ describe('getWalletPublicKeyWithIndex', () => {
         return ledger.getWalletPublicKeyWithIndex(index);
       })
       .then((res) => {
-        expect(res).to.have.property('publicKey');
+        expect(res.publicKey).to.have.lengthOf(64);
         done();
       })
       .catch((error) => done(error));
