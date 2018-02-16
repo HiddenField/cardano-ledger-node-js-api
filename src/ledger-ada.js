@@ -257,10 +257,8 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.signTransaction = function(txHex, indexes) {
-
     return this.setTransaction(txHex)
-    .then((result) => this.signTransactionWithIndexes(indexes));
-
+      .then(result => this.signTransactionWithIndexes(indexes));
 }
 
 LedgerAda.SUCCESS_CODE = "9000";

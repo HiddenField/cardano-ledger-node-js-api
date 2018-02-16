@@ -9,8 +9,7 @@ function isHeadless() {
 /**
  * Run a mocha test only if the build is headless.
  *
- * This is useful for stress tests which are too laborious to
- * run with user interaction.
+ * This is useful for stress tests which are too laborious to run with user interaction.
  */
 function ifHeadlessIt(title, test) {
   return isHeadless() ? it(title, test) : it.skip(`[SKIPPED: NOT IN HEADLESS] ${title}`, () => {});
