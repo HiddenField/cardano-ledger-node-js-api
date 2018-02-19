@@ -22,7 +22,8 @@ describe('getWalletPublicKeyWithIndex', () => {
         return ledger.getWalletPublicKeyWithIndex(index);
       })
       .then((res) => {
-        expect(res.publicKey).to.have.lengthOf(64);
+        const publicKey = Buffer.from(res.publicKey, 'hex');
+        expect(publicKey.length).to.equal(32);
         done();
       })
       .catch((error) => done(error));
