@@ -131,6 +131,17 @@ ledger
 
 			*/
 
+
+			console.log("\n\n\nSTART - Get App Info");
+			ada.isConnected().then(
+					function(result) {
+							console.log(result);
+							console.log("END - Get App Info\n\n\n");
+					}).fail(
+					function(error) { console.log(error); });
+/*
+			*/
+
 	})
 	.catch(function(reason) {
 		console.log('An error occured: ', reason);
