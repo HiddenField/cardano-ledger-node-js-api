@@ -313,10 +313,9 @@ LedgerAda.prototype.isConnected = function() {
  */
 LedgerAda.prototype.handleError = function(errorMsg) {
 
-  
   var error = {success : false};
 
-  const [ errorStatus ] = errorMsg.toUpperCase().match(/([0-9A-F]+)$/gm) || [ '0000' ];
+  const [ errorStatus ] = errorMsg.toUpperCase().match(/([0-9A-F]{4})$/gm) || [ '0000' ];
   const errorCode = `0x${errorStatus}`;
 
   if (errorCode === '0x0000') {
