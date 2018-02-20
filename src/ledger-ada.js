@@ -261,6 +261,67 @@ LedgerAda.prototype.signTransaction = function(txHex, indexes) {
       .then(result => this.signTransactionWithIndexes(indexes));
 }
 
+/**
+ * Get app info. Checks if the device is connected and if so, returns an object
+ * containing the app version.
+ *
+ * @returns {Promise<Object>} The response from the device.
+ */
+LedgerAda.prototype.isConnected = function() {
+  var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
+
+  buffer[0] = 0x80;
+  buffer[1] = LedgerAda.INS_APP_INFO;
+  buffer[2] = 0x00;
+  buffer[3] = 0x00;
+  // Data Length
+  buffer.writeUInt32BE(0, LedgerAda.OFFSET_LC);
+
+  return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
+    var result = {};
+    response = Buffer.from(response, 'hex');
+    result['success'] = true;
+    result['Major'] = response[0];
+    result['Minor'] = response[1];
+    result['Patch'] = response[2];
+    return result;
+  }).catch((error) => this.handleError(error));
+}
+
+
+/**
+ * Generic method to respond to known error codes.
+ *
+ * @returns {Error<Obj>} the error message.
+ */
+LedgerAda.prototype.handleError = function(errorMsg) {
+
+  var error = {success : false};
+
+  const [ errorStatus ] = errorMsg.toUpperCase().match(/([0-9A-F]{4})$/gm) || [ '0000' ];
+  const errorCode = `0x${errorStatus}`;
+
+  if (errorCode === '0x0000') {
+    error['msg'] = "Unknown Error"
+    return error;
+  }
+
+  error['code'] = errorCode;
+
+  switch(errorCode) {
+      case LedgerAda.Error.APP_NOT_RUNNING:
+        error['msg'] = "Cardano App is not installed or not running on the Ledger.";
+        break;
+      case LedgerAda.Error.INS_NOT_AVAILABLE:
+        error['msg'] = "Instruction not available on this build."
+        break;
+      default:
+        error['msg'] = "Invalid Status";
+  }
+
+  return error;
+}
+
 LedgerAda.SUCCESS_CODE = "9000";
 LedgerAda.CODE_LENGTH = 4;
 LedgerAda.AMOUNT_SIZE = 8;
@@ -275,6 +336,7 @@ LedgerAda.OFFSET_LC = 4;
 LedgerAda.INS_GET_PUBLIC_KEY = 0x01;
 LedgerAda.INS_SET_TX = 0x02;
 LedgerAda.INS_SIGN_TX = 0x03;
+LedgerAda.INS_APP_INFO = 0x04;
 LedgerAda.INS_BLAKE2B_TEST = 0x07;
 LedgerAda.INS_BASE58_ENCODE_TEST = 0x08;
 LedgerAda.INS_CBOR_DECODE_TEST = 0x09;
@@ -283,5 +345,7 @@ LedgerAda.Error = {};
 LedgerAda.Error.MAX_TX_HEX_LENGTH_EXCEEDED = 5001;
 LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
 LedgerAda.Error.INDEX_NAN = 5003;
+LedgerAda.Error.APP_NOT_RUNNING = 0x6E00;
+LedgerAda.Error.INS_NOT_AVAILABLE = 0x6D00;
 
 module.exports = LedgerAda;
