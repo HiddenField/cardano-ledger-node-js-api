@@ -297,7 +297,6 @@ LedgerAda.prototype.isConnected = function() {
   return this.comm.exchange(buffer.toString('hex'), [0x9000]).then(function(response) {
     var result = {};
     response = Buffer.from(response, 'hex');
-    var publicKeyLength = response[0];
     result['success'] = true;
     result['Major'] = response[0];
     result['Minor'] = response[1];
@@ -314,17 +313,18 @@ LedgerAda.prototype.isConnected = function() {
  */
 LedgerAda.prototype.handleError = function(errorMsg) {
 
-  var errorCode = parseInt("0x" + errorMsg.slice(errorMsg.length -4, errorMsg.length));
-  var error = {};
-  error['success'] = false;
+  
+  var error = {success : false};
 
-  if(isNaN(errorCode)) {
-      error['errorMsg'] = errorMsg + " - Unknown Error";
-      return error;
-  } else {
-      error['code'] = "0x" + errorCode.toString(16);
+  const [ errorStatus ] = errorMsg.toUpperCase().match(/([0-9A-F]+)$/gm) || [ '0000' ];
+  const errorCode = `0x${errorStatus}`;
+
+  if (errorCode === '0x0000') {
+    error['msg'] = "Unknown Error"
+    return error;
   }
 
+  error['code'] = errorCode;
 
   switch(errorCode) {
       case LedgerAda.Error.APP_NOT_RUNNING:
