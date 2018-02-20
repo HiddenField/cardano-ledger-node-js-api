@@ -73,7 +73,7 @@ describe('signTransaction', () => {
       })
       .then((res) => done(res))
       .catch((error) => {
-        expect(error.code).to.equal(0x5302);
+        expect(error.code).to.equal(5302);
 
         // Reset here so we don't end up stuck for further tests
         return ledger.setTransaction(tx).catch(error => done());

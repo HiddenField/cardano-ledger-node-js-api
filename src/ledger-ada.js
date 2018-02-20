@@ -217,6 +217,14 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
       return Q.reject(result);
     }
 
+    if(indexes[i] > 0xFFFFFFFF) {
+      var result = {};
+      result['success'] = false;
+      result['code'] = LedgerAda.Error.INDEX_MAX_EXCEEDED;
+      result['error'] = "Address index exceeds maximum."
+      return Q.reject(result);
+    }
+
     var buffer = new Buffer(headerLength + 4);
     // Header
     buffer[0] = 0x80;
@@ -229,7 +237,6 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
     buffer.writeUInt32BE(indexes[i], LedgerAda.OFFSET_CDATA);
 
     apdus.push(buffer.toString('hex'));
-
   }
 
   return utils.foreach(apdus, function(apdu) {
@@ -345,6 +352,7 @@ LedgerAda.Error = {};
 LedgerAda.Error.MAX_TX_HEX_LENGTH_EXCEEDED = 5001;
 LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
 LedgerAda.Error.INDEX_NAN = 5003;
+LedgerAda.Error.INDEX_MAX_EXCEEDED = 5302;
 LedgerAda.Error.APP_NOT_RUNNING = 0x6E00;
 LedgerAda.Error.INS_NOT_AVAILABLE = 0x6D00;
 
