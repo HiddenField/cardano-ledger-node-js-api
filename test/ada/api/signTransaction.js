@@ -1,8 +1,14 @@
 const { expect } = require('chai');
-const { getLedger, promptUser, ifHeadlessIt } = require('../utils');
+const Joi = require('Joi');
+const { getLedger, validate, promptUser, ifHeadlessIt } = require('../utils');
 
 describe('signTransaction', () => {
   let ledger = {};
+
+  const schema = Joi.object().keys({
+    success: Joi.boolean(),
+    digest: Joi.string().regex(/^[a-zA-Z0-9]+$/).required(),
+  });
 
   afterEach(() => {
     ledger.comm.close_async()
@@ -21,7 +27,7 @@ describe('signTransaction', () => {
         return ledger.signTransaction(tx, [0xFFFFFFFF]);
       })
       .then((res) => {
-        expect(res[0]).to.have.property('digest');
+        validate(res[0], schema);
         done();
       })
       .catch(error => done(error));
@@ -37,7 +43,7 @@ describe('signTransaction', () => {
         return ledger.signTransaction(tx, [0xF00DB00B, 0x8BADF00D]);
       })
       .then((res) => {
-        expect(res[0]).to.have.property('digest');
+        validate(res[0], schema);
         done();
       })
       .catch(error => done(error));
@@ -107,7 +113,7 @@ describe('signTransaction', () => {
     // the ledger before the signing indexes have been reset. Yep, there
     // are 20 of those there.
     const check = (res) => {
-      expect(res[0]).to.have.property('digest');
+      validate(res[0], schema);
       return ledger.signTransaction(tx, [0xFFFFFFFF]);
     };
 

@@ -288,9 +288,9 @@ LedgerAda.prototype.isConnected = function() {
     var result = {};
     response = Buffer.from(response, 'hex');
     result['success'] = true;
-    result['Major'] = response[0];
-    result['Minor'] = response[1];
-    result['Patch'] = response[2];
+    result['major'] = response[0];
+    result['minor'] = response[1];
+    result['patch'] = response[2];
     return result;
   }).catch((error) => this.handleError(error));
 }

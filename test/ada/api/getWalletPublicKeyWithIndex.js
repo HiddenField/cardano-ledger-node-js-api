@@ -1,8 +1,14 @@
 const { expect } = require('chai');
-const { getLedger, promptUser, ifHeadlessIt } = require('../utils');
+const Joi = require('joi');
+const { getLedger, validate, promptUser, ifHeadlessIt } = require('../utils');
 
 describe('getWalletPublicKeyWithIndex', () => {
   let ledger = {};
+
+  const schema = Joi.object().keys({
+    success: Joi.boolean(),
+    publicKey: Joi.string().regex(/^[a-zA-Z0-9]+$/).required(),
+  });
 
   afterEach(() => {
     ledger.comm.close_async()
@@ -23,6 +29,7 @@ describe('getWalletPublicKeyWithIndex', () => {
       })
       .then((res) => {
         const publicKey = Buffer.from(res.publicKey, 'hex');
+        validate(res, schema);
         expect(publicKey.length).to.equal(32);
         done();
       })
@@ -41,7 +48,7 @@ describe('getWalletPublicKeyWithIndex', () => {
         return ledger.getWalletPublicKeyWithIndex(index);
       })
       .then((res) => {
-        expect(res).to.have.property('publicKey');
+        validate(res, schema);
         response = res;
         promptUser('Please accept public key request');
 
@@ -71,7 +78,7 @@ describe('getWalletPublicKeyWithIndex', () => {
         return ledger.getWalletPublicKeyWithIndex(index);
       })
       .then((res) => {
-        expect(res).to.have.property('publicKey');
+        validate(res, schema);
         done();
       })
       .catch((error) => done(error));
@@ -115,7 +122,7 @@ describe('getWalletPublicKeyWithIndex', () => {
       })
       .then((responses) => {
         responses.forEach((res) => {
-          expect(res).to.have.property('publicKey');
+          validate(res, schema);
         });
         done();
       })

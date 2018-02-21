@@ -1,4 +1,6 @@
+const { expect } = require('chai');
 const { yellow } = require('chalk');
+const Joi = require('Joi');
 const { comm_node } = require('../../src');
 const ada = require('./ledger-ada');
 
@@ -41,8 +43,20 @@ function promptUser(message) {
   console.log(yellow.bgBlack('\n LEDGER DEVICE ') + yellow(` ${message.toUpperCase()}\n`));
 }
 
+/**
+ * Validate a response against a Joi schema.
+ *
+ * @param {Object} response   The response to validate.
+ * @param {Joi.object} schema The Joi schema to validate against.
+ */
+function validate(response, schema) {
+  const { error, value } = Joi.validate(response, schema);
+  expect(error).to.be.null;
+}
+
 module.exports = {
   getLedger, 
   promptUser,
   ifHeadlessIt,
+  validate,
 };

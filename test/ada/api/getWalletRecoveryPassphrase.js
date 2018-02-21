@@ -1,8 +1,15 @@
 const { expect } = require('chai');
-const { getLedger, promptUser, ifHeadlessIt } = require('../utils');
+const Joi = require('joi');
+const { getLedger, validate, promptUser, ifHeadlessIt } = require('../utils');
 
 describe('getWalletRecoveryPassphrase', () => {
   let ledger = {};
+
+  const schema = Joi.object().keys({
+    success: Joi.boolean(),
+    publicKey: Joi.string().regex(/^[a-zA-Z0-9]+$/).required(),
+    chainCode: Joi.string().regex(/^[a-zA-Z0-9]+$/).required(),
+  });
 
   afterEach(() => {
     ledger.comm.close_async()
@@ -22,6 +29,8 @@ describe('getWalletRecoveryPassphrase', () => {
       .then((res) => {
         const publicKey = Buffer.from(res.publicKey, 'hex');
         const chainCode = Buffer.from(res.chainCode, 'hex');
+
+        validate(res, schema);
         expect(publicKey.length).to.equal(32);
         expect(chainCode.length).to.equal(32);
         done();
@@ -40,8 +49,7 @@ describe('getWalletRecoveryPassphrase', () => {
         return ledger.getWalletRecoveryPassphrase();
       })
       .then((res) => {
-        expect(res).to.have.property('publicKey');
-        expect(res).to.have.property('chainCode');
+        validate(res, schema);
         response = res;
         promptUser('Please accept public key request');
 
@@ -70,8 +78,7 @@ describe('getWalletRecoveryPassphrase', () => {
       })
       .then((responses) => {
         responses.forEach((res) => {
-          expect(res).to.have.property('publicKey');
-          expect(res).to.have.property('chainCode');
+          validate(res, schema);
         });
         done();
       })
