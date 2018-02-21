@@ -5,8 +5,6 @@ const { getLedger, validate } = require('../utils');
 describe('isConnected', () => {
   let ledger = {};
 
-  
-
   afterEach(() => {
     ledger.comm.close_async()
       .then(() => {
