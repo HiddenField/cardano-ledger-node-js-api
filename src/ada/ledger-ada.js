@@ -15,19 +15,6 @@
  *  limitations under the License.
  ********************************************************************************/
 
-/*
- * ADA APDU I/O Buffer Structure
- * // Header
- * buffer[0] = APDU IDENTIFIER
- * buffer[1] = INSTRUCITON NO
- * buffer[2] = P1 VALUE
- * buffer[3] = P2 VALUE
- * buffer[4] = CDATA_LENGTH
- * // Data
- * buffer[...] = DATA
- * buffer[END] = 0x9000 OKAY
- */
-
 const Q = require('q');
 const utils = require('../utils');
 const Int64 = require('node-int64');
@@ -35,10 +22,24 @@ const Int64 = require('node-int64');
 /**
  * @class LedgerAda
  * @author StaceC - HiddenField Ltd
- *
+ * @version 0.1
+ * @description
  * Class uses the underlying Ledger comms layer to communicate with the Cardano Ledger App.
  *
- * All methods return a result map containing a `success` boolean.
+ * All methods return a result object containing a `success` boolean.
+ *
+ * ### ADA APDU I/O Buffer Structure
+ *
+ * #### Header
+ * * buffer[0] = APDU IDENTIFIER
+ * * buffer[1] = INSTRUCITON NO
+ * * buffer[2] = P1 VALUE
+ * * buffer[3] = P2 VALUE
+ * * buffer[4..7] = CDATA_LENGTH
+ *
+ * #### Data
+ * * buffer[...] = DATA
+ * * buffer[END] = 0x9000 OKAY
  */
 const LedgerAda = function(comm) {
   this.comm = comm;
@@ -58,7 +59,7 @@ const LedgerAda = function(comm) {
   /**
    * Generic method to respond to known error codes.
    *
-   * @returns {Error<{success:boolean, code:number, msg:string }>} the error message.
+   * @returns {Error<{success:boolean, code:number, msg:string }>} the error code and message.
    * @private
    */
   function handleError(errorMsg) {
@@ -95,9 +96,7 @@ const LedgerAda = function(comm) {
  * The BIP 32 index is from the path at `44'/1815'/0'/[index]`.
  *
  * @param {number} index The index to retrieve.
- * @return {Promise<{ success:boolean, publicKey:string }>} The response from the device.
- *
- *
+ * @return {Promise<{ success:boolean, publicKey:string }>} The public key for the given index.
  *
  * @throws 5201 - Non-hardened index passed in, Index < 0x80000000
  * @throws 5202 - Invalid header
@@ -138,7 +137,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  * 32 Byte Public Key
  * 32 Byte Chain Code
  *
- * @return {Promise<{success:boolean, publicKey:string, chainCode:string }>} The response from the device.
+ * @return {Promise<{success:boolean, publicKey:string, chainCode:string }>} The result object containing the root wallet public key and chaincode.
  *
  *
  */
@@ -251,8 +250,8 @@ LedgerAda.prototype.setTransaction = function(txHex) {
  * Sign the set transaction with the given indexes.
  * Note that setTransaction must be called prior to this being called.
  *
- * @param [<Number>] indexes The indexes of the keys to be used for signing.
- * @returns {Promise<Object>} The response from the device.
+ * @param {number[]} indexes The indexes of the keys to be used for signing.
+ * @returns {Array.Promise<Object>} An array of result objects containing a digest for each of the passed in indexes.
  * @private
  */
 LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
@@ -323,7 +322,7 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
  *
  * @param {string} txHex The transaction to be signed.
  * @param {number[]} indexes The indexes of the keys to be used for signing.
- * @return {Array.Promise<{success:boolean, digest:string }>} The response from the device.
+ * @return {Array.Promise<{success:boolean, digest:string }>} An array of result objects containing a digest for each of the passed in indexes.
  *
  * @throws 5001 - Tx > 1024 bytes
  * @throws 5301 - Index < 0x80000000
@@ -340,7 +339,7 @@ LedgerAda.prototype.signTransaction = function(txHex, indexes) {
  * Checks if the device is connected and if so, returns an object
  * containing the app version.
  *
- * @returns {Promise<{success:boolean, major:number, minor:number; patch:number}>} The response from the device.
+ * @returns {Promise<{success:boolean, major:number, minor:number, patch:number}>} Result object containing the application version number.
  */
 LedgerAda.prototype.isConnected = function() {
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
