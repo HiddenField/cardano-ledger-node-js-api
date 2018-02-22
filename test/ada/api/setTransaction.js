@@ -112,7 +112,7 @@ describe('setTransaction', () => {
       .catch(error => done());
   });
 
-  it('Should not set incomplete transaction', (done) => {
+  it('Should not set an incomplete transaction', (done) => {
     getLedger()
       .then((device) => {
         ledger = device;
