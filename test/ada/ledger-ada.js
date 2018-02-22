@@ -1,5 +1,5 @@
 const Int64 = require('node-int64');
-const LedgerAda = require('../../src/ledger-ada');
+const LedgerAda = require('../../src/ada/ledger-ada');
 const Q = require('Q');
 const utils = require('../../src/utils');
 
