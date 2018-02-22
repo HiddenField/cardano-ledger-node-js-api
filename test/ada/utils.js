@@ -18,6 +18,15 @@ function ifHeadlessIt(title, test) {
 }
 
 /**
+ * Run a mocha test only if the build is not headless.
+ *
+ * This is useful for tests which always require interaction.
+ */
+function ifNotHeadlessIt(title, test) {
+  return isHeadless() ? it.skip(`[SKIPPED: RUNNING HEADLESSLY] ${title}`, () => {}) : it(title, test);
+}
+
+/**
  * Convenience function for retrieving the ADA Ledger.
  *
  * @returns {Promise<Object>} A promise that contains the ledger when fulfilled.
@@ -58,5 +67,6 @@ module.exports = {
   getLedger, 
   promptUser,
   ifHeadlessIt,
+  ifNotHeadlessIt,
   validate,
 };
