@@ -37,7 +37,7 @@
   "scripts": {
     "test": "node test/tests-node.js",
     "ada-core-test": "mocha --timeout 3500 test/ada/core",
-    "ada-api-test": "mocha --timeout 10000 test/ada/api",
+    "ada-api-test": "mocha --timeout 15000 test/ada/api",
     "browserify-test": "browserify --im --standalone runTests -o test/tests-browser.js test/tests-node.js",
     "browserify": "browserify --im --s=ledger -o browser/ledger.js src/index-browserify.js",
     "uglify": "uglifyjs -o browser/ledger.min.js browser/ledger.js",
