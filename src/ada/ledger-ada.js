@@ -58,7 +58,7 @@ const LedgerAda = function(comm) {
   /**
    * Generic method to respond to known error codes.
    *
-   * @returns {Error<Obj>} the error message.
+   * @returns {Error<{success:boolean, code:number, msg:string }>} the error message.
    * @private
    */
   function handleError(errorMsg) {
@@ -90,14 +90,12 @@ const LedgerAda = function(comm) {
   }
 }
 
-
-
 /**
  * @description Get a public key from the specified BIP 32 index.
  * The BIP 32 index is from the path at `44'/1815'/0'/[index]`.
  *
- * @param {Number} index The index to retrieve.
- * @return {Promise<Object>} The response from the device.
+ * @param {number} index The index to retrieve.
+ * @return {Promise<{ success:boolean, publicKey:string }>} The response from the device.
  *
  *
  *
@@ -132,6 +130,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   });
 }
 
+
 /**
  * @description Get the root extended public key of the wallet,
  * also known as the wallet recovery passphrase.
@@ -139,9 +138,8 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  * 32 Byte Public Key
  * 32 Byte Chain Code
  *
- * @return {Promise<Object>} The response from the device.
+ * @return {Promise<{success:boolean, publicKey:string, chainCode:string }>} The response from the device.
  *
-
  *
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
@@ -165,10 +163,11 @@ LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
   });
 }
 
+
 /**
  * Set the transaction.
  *
- * @param {String} txHex The transaction to be set.
+ * @param {string} txHex The transaction to be set.
  * @return {Promise<Object>} The response from the device.
  * @private
  */
@@ -252,7 +251,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
  * Sign the set transaction with the given indexes.
  * Note that setTransaction must be called prior to this being called.
  *
- * @param {Array<Int>} indexes The indexes of the keys to be used for signing.
+ * @param [<Number>] indexes The indexes of the keys to be used for signing.
  * @returns {Promise<Object>} The response from the device.
  * @private
  */
@@ -315,15 +314,16 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
   });
 }
 
+
 /**
  * @description Signs a hex encoded transaction with the given indexes.
  * The transaction is hased using Blake2b on the Ledger device.
  * Then, signed by the private key derived from each of the passed in indexes at
  * path 44'/1815'/0'/[index].
  *
- * @param {String} txHex The transaction to be signed.
- * @param {Array<Int>} indexes The indexes of the keys to be used for signing.
- * @return {Promise<Object>} The response from the device.
+ * @param {string} txHex The transaction to be signed.
+ * @param {number[]} indexes The indexes of the keys to be used for signing.
+ * @return {Array.Promise<{success:boolean, digest:string }>} The response from the device.
  *
  * @throws 5001 - Tx > 1024 bytes
  * @throws 5301 - Index < 0x80000000
@@ -335,11 +335,12 @@ LedgerAda.prototype.signTransaction = function(txHex, indexes) {
       .then(result => this.signTransactionWithIndexes(indexes));
 }
 
+
 /**
  * Checks if the device is connected and if so, returns an object
  * containing the app version.
  *
- * @returns {Promise<Object>} The response from the device.
+ * @returns {Promise<{success:boolean, major:number, minor:number; patch:number}>} The response from the device.
  */
 LedgerAda.prototype.isConnected = function() {
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
