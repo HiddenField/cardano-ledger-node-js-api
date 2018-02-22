@@ -12,7 +12,7 @@ describe('isConnected', () => {
       });
   });
   
-  it('Should correctly get semver version of device', (done) => {
+  it('Should correctly get the semantic version of device', (done) => {
     const schema = Joi.object().keys({
       success: Joi.boolean(),
       major: Joi.number().integer().min(0).required(),
