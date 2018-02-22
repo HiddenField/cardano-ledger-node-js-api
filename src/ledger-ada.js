@@ -58,11 +58,7 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   // Nano S can only derive hardened addresses on ED25519 curve.
 
   if(isNaN(index)) {
-    var result = {};
-    result['success'] = false;
-    result['code'] = LedgerAda.Error.INDEX_NAN;
-    result['error'] = "Address index is not a number."
-    return Q.reject(result);
+    return Q.reject("Invalid status " + LedgerAda.Error.INDEX_NAN);
   }
 
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA + 4);
@@ -135,18 +131,10 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   var maxChunkSize = LedgerAda.MAX_APDU_SIZE - headerLength;
   var isSingleAPDU = tx.length < maxChunkSize;
 
-  console.log("Transaction Length[" + tx.length + "]");
-  console.log("Transaction Buffer[" + tx.toString('hex') + "]");
-  console.log("Is Single APDU[" + isSingleAPDU + "]")
-  console.log("Max Chunk Size[" + maxChunkSize + "]");
-
   while (offset != tx.length) {
 
     var isLastAPDU = tx.length - offset < maxChunkSize;
     var chunkSize = (isLastAPDU ? tx.length - offset : maxChunkSize);
-
-    console.log("Data Size[" + chunkSize + "]");
-
     var buffer = new Buffer(headerLength + chunkSize);
     // Header
     buffer[0] = 0x80;
@@ -158,12 +146,9 @@ LedgerAda.prototype.setTransaction = function(txHex) {
     // Body
     tx.copy(buffer, headerLength, offset, offset + chunkSize);
 
-
     apdus.push(buffer.toString('hex'));
-    console.log("APDU Buffer[" + buffer.toString('hex') + "]");
 
     offset += chunkSize;
-
   }
 
   return utils.foreach(apdus, function(apdu) {
@@ -232,6 +217,14 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
       return Q.reject(result);
     }
 
+    if(indexes[i] > 0xFFFFFFFF) {
+      var result = {};
+      result['success'] = false;
+      result['code'] = LedgerAda.Error.INDEX_MAX_EXCEEDED;
+      result['error'] = "Address index exceeds maximum."
+      return Q.reject(result);
+    }
+
     var buffer = new Buffer(headerLength + 4);
     // Header
     buffer[0] = 0x80;
@@ -244,7 +237,6 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
     buffer.writeUInt32BE(indexes[i], LedgerAda.OFFSET_CDATA);
 
     apdus.push(buffer.toString('hex'));
-
   }
 
   return utils.foreach(apdus, function(apdu) {
@@ -272,10 +264,8 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
  * @returns {Promise<Object>} The response from the device.
  */
 LedgerAda.prototype.signTransaction = function(txHex, indexes) {
-
     return this.setTransaction(txHex)
-    .then((result) => this.signTransactionWithIndexes(indexes));
-
+      .then(result => this.signTransactionWithIndexes(indexes));
 }
 
 /**
@@ -298,9 +288,9 @@ LedgerAda.prototype.isConnected = function() {
     var result = {};
     response = Buffer.from(response, 'hex');
     result['success'] = true;
-    result['Major'] = response[0];
-    result['Minor'] = response[1];
-    result['Patch'] = response[2];
+    result['major'] = response[0];
+    result['minor'] = response[1];
+    result['patch'] = response[2];
     return result;
   }).catch((error) => this.handleError(error));
 }
@@ -362,6 +352,7 @@ LedgerAda.Error = {};
 LedgerAda.Error.MAX_TX_HEX_LENGTH_EXCEEDED = 5001;
 LedgerAda.Error.MAX_MSG_LENGTH_EXCEEDED = 5002;
 LedgerAda.Error.INDEX_NAN = 5003;
+LedgerAda.Error.INDEX_MAX_EXCEEDED = 5302;
 LedgerAda.Error.APP_NOT_RUNNING = 0x6E00;
 LedgerAda.Error.INS_NOT_AVAILABLE = 0x6D00;
 

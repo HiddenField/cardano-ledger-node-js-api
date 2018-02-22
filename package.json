@@ -30,13 +30,14 @@
     "browserify": "13.1.0",
     "chai": "4.1.2",
     "chalk": "^2.3.0",
+    "joi": "13.1.2",
     "mocha": "4.1.0",
     "uglify-js": "2.7.3"
   },
   "scripts": {
     "test": "node test/tests-node.js",
-    "ada-core-test": "mocha test/ada/core",
-    "ada-api-test": "mocha test/ada/api",
+    "ada-core-test": "mocha --timeout 3500 test/ada/core",
+    "ada-api-test": "mocha --timeout 10000 test/ada/api",
     "browserify-test": "browserify --im --standalone runTests -o test/tests-browser.js test/tests-node.js",
     "browserify": "browserify --im --s=ledger -o browser/ledger.js src/index-browserify.js",
     "uglify": "uglifyjs -o browser/ledger.min.js browser/ledger.js",

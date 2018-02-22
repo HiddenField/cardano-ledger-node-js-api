@@ -226,26 +226,44 @@ describe('testCBORDecode', () => {
    * Promises on the comm exchange beneath it and bad manaagement of them. The move to the new 
    * ledger API will likely resolve this.
    */
-  it.skip('Should decode CBOR 20 times', (done) => {
-    const length = 20;
+  it('Should decode CBOR 20 times', (done) => {
     const tx = '839F8200D8185826825820E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861B0037699E3EA6D064FFA0';
-    const txs = Array.from({ length }, (v, i) => tx);
+
+    const check = (res) => {
+      const amount = new Int64(15597252095955044);
+      expect(res[2].txInputs).to.equal(1);
+      expect(res[2].txOutputs).to.equal(1);
+      expect(res[2].tx0.amount).to.equal(amount.toOctetString());
+
+      return ledger.testCBORDecode(tx);
+    };
 
     getLedger()
       .then((device) => {
         ledger = device;
-        return Promise.all(txs.map(tx => ledger.testCBORDecode(tx)));
+        return ledger.testCBORDecode(tx);
       })
-      .then((responses) => {
-        responses.forEach((res) => {
-          const amount = new Int64(15597252095955044);
-
-          expect(res[2].txInputs).to.equal(1);
-          expect(res[2].txOutputs).to.equal(1);
-          expect(res[2].tx0.amount).to.equal(amount.toOctetString());
-        });
-        done();
-      })
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => check(res))
+      .then(res => done())
       .catch(error => done(error));
   });
 });

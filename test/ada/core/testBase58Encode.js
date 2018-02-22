@@ -11,7 +11,39 @@ describe('testBase58Encode', () => {
       });
   });
 
-  it('Should successfully base58 encode a valid address (168)', (done) => {
+  it('Should successfully base58 encode a valid address (124 bytes)', (done) => {
+    const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc8682d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a2005820';
+
+    getLedger()
+      .then((device) => {
+        ledger = device;
+        return ledger.testBase58Encode(address);
+      })
+      .then((res) => {
+        expect(res.encodedAddress).to.equal('33gGrwBKYTVq1NCtdFuoa3NGHM557m1D4XgDx9tE7bHYKnWLdUPzx4vLqz5HJo1fFZyxSE6TMjEaEz1f2zn5iB456DfBMQxHCgzdkc8wjMRw4xWYeA9HeHvx7pHhJYC7eShgGaScKzhAaWMbHGc2FsgAW9VQUEXqFE16FtmVcs');
+        expect(res.addressLength).to.equal(170);
+        done();
+      })
+      .catch(error => done(error));
+  });
+
+  it('Should reject address between 124 and 248 bytes (200 bytes)', (done) => {
+    const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc8682d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a200582014443c0688e001a67ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f89aec0d4374b7d3e18609ede8589f82f7f0a200582006fbe92cf6f820587406534795958c411e662dc0f';
+
+    getLedger()
+      .then((device) => {
+        ledger = device;
+        return ledger.testBase58Encode(address);
+      })
+      .then(res => done(res))
+      .catch((error) => {
+        expect(error).to.have.string('5801');
+        done();
+      })
+      .catch(error => done(error));
+  });
+
+  it('Should successfully base58 encode a valid address (84 bytes)', (done) => {
     const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9b63fc010c06fbe92cf6f820587406534795958c411e662dc014443c0688e001a6768cc86';
 
     getLedger()
@@ -27,7 +59,7 @@ describe('testBase58Encode', () => {
       .catch(error => done(error));
   });
 
-  it('Should successfully base58 encode a valid address (96)', (done) => {
+  it('Should successfully base58 encode a valid address (48 bytes)', (done) => {
     const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a20058208200581c240596b9';
 
     getLedger()
@@ -43,7 +75,7 @@ describe('testBase58Encode', () => {
       .catch(error => done(error));
   });
 
-  it('Should successfully base58 encode a valid address (86)', (done) => {
+  it('Should successfully base58 encode a valid address (43 bytes)', (done) => {
     const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e18609ede8589f82f7f0a2005820820058';
 
     getLedger()
@@ -59,7 +91,7 @@ describe('testBase58Encode', () => {
       .catch(error => done(error));
   });
 
-  it('Should successfully base58 encode a valid address (54)', (done) => {
+  it('Should successfully base58 encode a valid address (27 bytes)', (done) => {
     const address = '82d818584a83581ce7fe8e468d2249f18cd7bf9aec0d4374b7d3e1';
 
     getLedger()
