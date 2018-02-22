@@ -48,6 +48,22 @@
 
 
 
+<div class="description">
+    <p>Class uses the underlying Ledger comms layer to communicate with the Cardano Ledger App.</p>
+<p>All methods return a result object containing a <code>success</code> boolean.</p>
+<h3>ADA APDU I/O Buffer Structure</h3><h4>Header</h4><ul>
+<li>buffer[0] = APDU IDENTIFIER</li>
+<li>buffer[1] = INSTRUCITON NO</li>
+<li>buffer[2] = P1 VALUE</li>
+<li>buffer[3] = P2 VALUE</li>
+<li>buffer[4..7] = CDATA_LENGTH</li>
+</ul>
+<h4>Data</h4><ul>
+<li>buffer[...] = DATA</li>
+<li>buffer[END] = 0x9000 OKAY</li>
+</ul>
+</div>
+
 
 
 
@@ -62,6 +78,9 @@
 
 <dl class="details">
 
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.1</li></ul></dd>
     
 
     
@@ -82,11 +101,7 @@
     <dt class="tag-author">Author:</dt>
     <dd class="tag-author">
         <ul>
-            <li>StaceC - HiddenField Ltd
-
-Class uses the underlying Ledger comms layer to communicate with the Cardano Ledger App.
-
-All methods return a result map containing a `success` boolean.</li>
+            <li>StaceC - HiddenField Ltd</li>
         </ul>
     </dd>
     
@@ -100,7 +115,7 @@ All methods return a result map containing a `success` boolean.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line35">line 35</a>
+        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -154,7 +169,7 @@ All methods return a result map containing a `success` boolean.</li>
     
 
     
-    <h4 class="name" id="getWalletPublicKeyWithIndex"><span class="type-signature"></span>getWalletPublicKeyWithIndex<span class="signature">(index)</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
+    <h4 class="name" id="getWalletPublicKeyWithIndex"><span class="type-signature"></span>getWalletPublicKeyWithIndex<span class="signature">(index)</span><span class="type-signature"> &rarr; {Promise.&lt;{success:boolean, publicKey:string}>}</span></h4>
     
 
     
@@ -205,7 +220,7 @@ The BIP 32 index is from the path at <code>44'/1815'/0'/[index]</code>.</p>
             <td class="type">
             
                 
-<span class="param-type">Number</span>
+<span class="param-type">number</span>
 
 
             
@@ -256,7 +271,7 @@ The BIP 32 index is from the path at <code>44'/1815'/0'/[index]</code>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line108">line 108</a>
+        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line105">line 105</a>
     </li></ul></dd>
     
 
@@ -315,7 +330,7 @@ The BIP 32 index is from the path at <code>44'/1815'/0'/[index]</code>.</p>
 
         
 <div class="param-desc">
-    <p>The response from the device.</p>
+    <p>The public key for the given index.</p>
 </div>
 
 
@@ -326,7 +341,7 @@ The BIP 32 index is from the path at <code>44'/1815'/0'/[index]</code>.</p>
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Object></span>
+<span class="param-type">Promise.&lt;{success:boolean, publicKey:string}></span>
 
 
     </dd>
@@ -344,7 +359,7 @@ The BIP 32 index is from the path at <code>44'/1815'/0'/[index]</code>.</p>
     
 
     
-    <h4 class="name" id="getWalletRecoveryPassphrase"><span class="type-signature"></span>getWalletRecoveryPassphrase<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
+    <h4 class="name" id="getWalletRecoveryPassphrase"><span class="type-signature"></span>getWalletRecoveryPassphrase<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;{success:boolean, publicKey:string, chainCode:string}>}</span></h4>
     
 
     
@@ -400,7 +415,7 @@ BIP 32 Path M 44' /1815'
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line147">line 147</a>
+        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -427,7 +442,7 @@ BIP 32 Path M 44' /1815'
 
         
 <div class="param-desc">
-    <p>The response from the device.</p>
+    <p>The result object containing the root wallet public key and chaincode.</p>
 </div>
 
 
@@ -438,7 +453,7 @@ BIP 32 Path M 44' /1815'
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Object></span>
+<span class="param-type">Promise.&lt;{success:boolean, publicKey:string, chainCode:string}></span>
 
 
     </dd>
@@ -456,7 +471,7 @@ BIP 32 Path M 44' /1815'
     
 
     
-    <h4 class="name" id="isConnected"><span class="type-signature"></span>isConnected<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
+    <h4 class="name" id="isConnected"><span class="type-signature"></span>isConnected<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;{success:boolean, major:number, minor:number, patch:number}>}</span></h4>
     
 
     
@@ -536,7 +551,7 @@ containing the app version.</p>
 
         
 <div class="param-desc">
-    <p>The response from the device.</p>
+    <p>Result object containing the application version number.</p>
 </div>
 
 
@@ -547,7 +562,7 @@ containing the app version.</p>
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Object></span>
+<span class="param-type">Promise.&lt;{success:boolean, major:number, minor:number, patch:number}></span>
 
 
     </dd>
@@ -565,7 +580,7 @@ containing the app version.</p>
     
 
     
-    <h4 class="name" id="signTransaction"><span class="type-signature"></span>signTransaction<span class="signature">(txHex, indexes)</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
+    <h4 class="name" id="signTransaction"><span class="type-signature"></span>signTransaction<span class="signature">(txHex, indexes)</span><span class="type-signature"> &rarr; {Array.Promise.&lt;{success:boolean, digest:string}>}</span></h4>
     
 
     
@@ -618,7 +633,7 @@ path 44'/1815'/0'/[index].</p>
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
             
@@ -641,7 +656,7 @@ path 44'/1815'/0'/[index].</p>
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;Int></span>
+<span class="param-type">Array.&lt;number></span>
 
 
             
@@ -692,7 +707,7 @@ path 44'/1815'/0'/[index].</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line333">line 333</a>
+        <a href="ledger-ada.js.html">ledger-ada.js</a>, <a href="ledger-ada.js.html#line332">line 332</a>
     </li></ul></dd>
     
 
@@ -761,7 +776,7 @@ path 44'/1815'/0'/[index].</p>
 
         
 <div class="param-desc">
-    <p>The response from the device.</p>
+    <p>An array of result objects containing a digest for each of the passed in indexes.</p>
 </div>
 
 
@@ -772,7 +787,7 @@ path 44'/1815'/0'/[index].</p>
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Object></span>
+<span class="param-type">Array.Promise.&lt;{success:boolean, digest:string}></span>
 
 
     </dd>
@@ -806,7 +821,7 @@ path 44'/1815'/0'/[index].</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 22 2018 21:26:49 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 22 2018 23:45:20 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
