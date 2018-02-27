@@ -64,7 +64,7 @@ function validate(response, schema) {
 }
 
 module.exports = {
-  getLedger, 
+  getLedger,
   promptUser,
   ifHeadlessIt,
   ifNotHeadlessIt,

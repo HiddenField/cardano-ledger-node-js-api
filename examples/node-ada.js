@@ -1,4 +1,4 @@
-const ledger = require('../src');
+const ledger = require('../src/ada');
 
 ledger
 	.comm_node
@@ -112,7 +112,7 @@ ledger
 		 */
 /*
 			console.log("\n\n\nSTART - Set Transaction");
-			ada.setTransaction(ZeroByOneTx).then(
+			ada.setTransaction(testTX).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Set Transaction\n\n\n");
@@ -120,18 +120,20 @@ ledger
 					function(error) { console.log(error); });
 
 			*/
-/*
+
+			var testIndex1 = 0x80000001;
+			var testIndex2 = 0x80000002;
 			console.log("\n\n\nSTART - Signing with index");
-			ada.signTransaction(testTX, [1,2]).then(
+			ada.signTransaction(testTX, [testIndex1, testIndex2]).then(
 					function(result) {
 							console.log(result);
 							console.log("END - Signing Index\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-
+/*
 			*/
 
-
+/*
 			console.log("\n\n\nSTART - Get App Info");
 			ada.isConnected().then(
 					function(result) {
@@ -139,7 +141,7 @@ ledger
 							console.log("END - Get App Info\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-/*
+
 			*/
 
 	})

@@ -1,4 +1,32 @@
-/********************************************************************************
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ledger-ada.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ledger-ada.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/********************************************************************************
  *   Ledger Node JS API
  *   (c) 2016-2017 Ledger
  *
@@ -15,47 +43,94 @@
  *  limitations under the License.
  ********************************************************************************/
 
-/*
- * ADA APDU I/O Buffer Structure
- * // Header
- * buffer[0] = APDU IDENTIFIER
- * buffer[1] = INSTRUCITON NO
- * buffer[2] = P1 VALUE
- * buffer[3] = P2 VALUE
- * buffer[4] = CDATA_LENGTH
- * // Data
- * buffer[...] = DATA
- * buffer[END] = 0x9000 OKAY
- */
-
 const Q = require('q');
-const utils = require('./utils');
+const utils = require('../utils');
 const Int64 = require('node-int64');
 
+/**
+ * @class LedgerAda
+ * @author StaceC - HiddenField Ltd
+ * @version 0.1
+ * @description
+ * Class uses the underlying Ledger comms layer to communicate with the Cardano Ledger App.
+ *
+ * All methods return a result object containing a `success` boolean.
+ *
+ * ### ADA APDU I/O Buffer Structure
+ *
+ * #### Header
+ * * buffer[0] = APDU IDENTIFIER
+ * * buffer[1] = INSTRUCITON NO
+ * * buffer[2] = P1 VALUE
+ * * buffer[3] = P2 VALUE
+ * * buffer[4..7] = CDATA_LENGTH
+ *
+ * #### Data
+ * * buffer[...] = DATA
+ * * buffer[END] = 0x9000 OKAY
+ */
 const LedgerAda = function(comm) {
   this.comm = comm;
   this.comm.setScrambleKey('ADA');
+
+  /**
+   * Check whether a given APDU response was successful.
+   *
+   * @param {Object} apduResponse The APDU response.
+   * @return True if response is successful.
+   * @private
+   */
+  function isApduSuccess(apduResponse) {
+    return LedgerAda.SUCCESS_CODE === apduResponse.slice(apduResponse.length-4, apduResponse.length);
+  }
+
+  /**
+   * Generic method to respond to known error codes.
+   *
+   * @returns {Error&lt;{success:boolean, code:number, msg:string }>} the error code and message.
+   * @private
+   */
+  function handleError(errorMsg) {
+
+    var error = {success : false};
+
+    const [ errorStatus ] = errorMsg.toUpperCase().match(/([0-9A-F]{4})$/gm) || [ '0000' ];
+    const errorCode = `0x${errorStatus}`;
+
+    if (errorCode === '0x0000') {
+      error['msg'] = "Unknown Error"
+      return error;
+    }
+
+    error['code'] = errorCode;
+
+    switch(errorCode) {
+        case LedgerAda.Error.APP_NOT_RUNNING:
+          error['msg'] = "Cardano App is not installed or not running on the Ledger.";
+          break;
+        case LedgerAda.Error.INS_NOT_AVAILABLE:
+          error['msg'] = "Instruction not available on this build."
+          break;
+        default:
+          error['msg'] = "Invalid Status";
+    }
+
+    return error;
+  }
 }
 
 /**
- * Check whether a given APDU response is a success response.
+ * @description Get a public key from the specified BIP 32 index.
+ * The BIP 32 index is from the path at `44'/1815'/0'/[index]`.
  *
- * @param {Object} apduResponse The APDU response.
- * @returns True if response is successful.
- */
-LedgerAda.prototype.isApduSuccess = function(apduResponse) {
-  return LedgerAda.SUCCESS_CODE === apduResponse.slice(apduResponse.length-4, apduResponse.length);
-}
-
-/**
- * Get a public key (address) from the specified index on the device.
+ * @param {number} index The index to retrieve.
+ * @return {Promise&lt;{ success:boolean, publicKey:string }>} The public key for the given index.
  *
- * @param {Number} index The index to retrieve.
- * @returns {Promise<Object>} The response from the device.
+ * @throws 5201 - Non-hardened index passed in, Index &lt; 0x80000000
+ * @throws 5202 - Invalid header
+ * @throws 5003 - Index not a number
  */
 LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
-  // TODO: Test if the address index is above 0x80000000, and if less, throw an error.
-  // Nano S can only derive hardened addresses on ED25519 curve.
 
   if(isNaN(index)) {
     return Q.reject("Invalid status " + LedgerAda.Error.INDEX_NAN);
@@ -82,10 +157,17 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
   });
 }
 
+
 /**
- * Get the extended public key from the wallet, also known as the recovery passphrase.
+ * @description Get the root extended public key of the wallet,
+ * also known as the wallet recovery passphrase.
+ * BIP 32 Path M 44' /1815'
+ * 32 Byte Public Key
+ * 32 Byte Chain Code
  *
- * @returns {Promise<Object>} The response from the device.
+ * @return {Promise&lt;{success:boolean, publicKey:string, chainCode:string }>} The result object containing the root wallet public key and chaincode.
+ *
+ *
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
@@ -108,11 +190,13 @@ LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
   });
 }
 
+
 /**
  * Set the transaction.
  *
- * @param {String} txHex The transaction to be set.
- * @returns {Promise<Object>} The response from the device.
+ * @param {string} txHex The transaction to be set.
+ * @return {Promise&lt;Object>} The response from the device.
+ * @private
  */
 LedgerAda.prototype.setTransaction = function(txHex) {
   var apdus = [];
@@ -129,11 +213,11 @@ LedgerAda.prototype.setTransaction = function(txHex) {
   }
 
   var maxChunkSize = LedgerAda.MAX_APDU_SIZE - headerLength;
-  var isSingleAPDU = tx.length < maxChunkSize;
+  var isSingleAPDU = tx.length &lt; maxChunkSize;
 
   while (offset != tx.length) {
 
-    var isLastAPDU = tx.length - offset < maxChunkSize;
+    var isLastAPDU = tx.length - offset &lt; maxChunkSize;
     var chunkSize = (isLastAPDU ? tx.length - offset : maxChunkSize);
     var buffer = new Buffer(headerLength + chunkSize);
     // Header
@@ -169,7 +253,7 @@ LedgerAda.prototype.setTransaction = function(txHex) {
         var offset = 0;
         result['TxInputCount'] = response.readUInt8(offset++);
         result['TxOutputCount'] = response.readUInt8(offset++);
-        for(var i=0; i<result['TxOutputCount']; i++) {
+        for(var i=0; i&lt;result['TxOutputCount']; i++) {
             result['Address_' + i] = response.slice(
                   offset, offset + LedgerAda.MAX_ADDR_PRINT_LENGTH).toString();
             offset += LedgerAda.MAX_ADDR_PRINT_LENGTH;
@@ -194,8 +278,9 @@ LedgerAda.prototype.setTransaction = function(txHex) {
  * Sign the set transaction with the given indexes.
  * Note that setTransaction must be called prior to this being called.
  *
- * @param {Array[Number]} indexes The indexes of the keys to be used for signing.
- * @returns {Promise<Object>} The response from the device.
+ * @param {number[]} indexes The indexes of the keys to be used for signing.
+ * @returns {Array.Promise&lt;Object>} An array of result objects containing a digest for each of the passed in indexes.
+ * @private
  */
 LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
   var apdus = [];
@@ -207,7 +292,7 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
 
   var signingCounter = indexes.length;
 
-  for(var i = 0; i<indexes.length; i++) {
+  for(var i = 0; i&lt;indexes.length; i++) {
 
     if(isNaN(indexes[i])) {
       var result = {};
@@ -256,23 +341,33 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
   });
 }
 
+
 /**
- * Sets and signs the passed in transaction with the array of indexes.
+ * @description Signs a hex encoded transaction with the given indexes.
+ * The transaction is hased using Blake2b on the Ledger device.
+ * Then, signed by the private key derived from each of the passed in indexes at
+ * path 44'/1815'/0'/[index].
  *
- * @param {String} txHex The transaction to be set.
- * @param {Array[Number]} indexes The indexes of the keys to be used for signing.
- * @returns {Promise<Object>} The response from the device.
+ * @param {string} txHex The transaction to be signed.
+ * @param {number[]} indexes The indexes of the keys to be used for signing.
+ * @return {Array.Promise&lt;{success:boolean, digest:string }>} An array of result objects containing a digest for each of the passed in indexes.
+ *
+ * @throws 5001 - Tx > 1024 bytes
+ * @throws 5301 - Index &lt; 0x80000000
+ * @throws 5302 - Index > 0xFFFFFFFF
+ * @throws 5003 - Index not a number
  */
 LedgerAda.prototype.signTransaction = function(txHex, indexes) {
     return this.setTransaction(txHex)
       .then(result => this.signTransactionWithIndexes(indexes));
 }
 
+
 /**
- * Get app info. Checks if the device is connected and if so, returns an object
+ * Checks if the device is connected and if so, returns an object
  * containing the app version.
  *
- * @returns {Promise<Object>} The response from the device.
+ * @returns {Promise&lt;{success:boolean, major:number, minor:number, patch:number}>} Result object containing the application version number.
  */
 LedgerAda.prototype.isConnected = function() {
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
@@ -293,40 +388,6 @@ LedgerAda.prototype.isConnected = function() {
     result['patch'] = response[2];
     return result;
   }).catch((error) => this.handleError(error));
-}
-
-
-/**
- * Generic method to respond to known error codes.
- *
- * @returns {Error<Obj>} the error message.
- */
-LedgerAda.prototype.handleError = function(errorMsg) {
-
-  var error = {success : false};
-
-  const [ errorStatus ] = errorMsg.toUpperCase().match(/([0-9A-F]{4})$/gm) || [ '0000' ];
-  const errorCode = `0x${errorStatus}`;
-
-  if (errorCode === '0x0000') {
-    error['msg'] = "Unknown Error"
-    return error;
-  }
-
-  error['code'] = errorCode;
-
-  switch(errorCode) {
-      case LedgerAda.Error.APP_NOT_RUNNING:
-        error['msg'] = "Cardano App is not installed or not running on the Ledger.";
-        break;
-      case LedgerAda.Error.INS_NOT_AVAILABLE:
-        error['msg'] = "Instruction not available on this build."
-        break;
-      default:
-        error['msg'] = "Invalid Status";
-  }
-
-  return error;
 }
 
 LedgerAda.SUCCESS_CODE = "9000";
@@ -357,3 +418,26 @@ LedgerAda.Error.APP_NOT_RUNNING = 0x6E00;
 LedgerAda.Error.INS_NOT_AVAILABLE = 0x6D00;
 
 module.exports = LedgerAda;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LedgerAda.html">LedgerAda</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 22 2018 23:45:20 GMT+0000 (GMT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
