@@ -22,7 +22,7 @@ const Int64 = require('node-int64');
 /**
  * @class LedgerAda
  * @author StaceC - HiddenField Ltd
- * @version 0.1
+ * @version 0.1.0
  * @description
  * Class uses the underlying Ledger comms layer to communicate with the Cardano Ledger App.
  *
@@ -40,6 +40,10 @@ const Int64 = require('node-int64');
  * #### Data
  * * buffer[...] = DATA
  * * buffer[END] = 0x9000 OKAY
+ *
+ * @example
+ * const ada = new ledger.ada(comm);
+ *
  */
 const LedgerAda = function(comm) {
   this.comm = comm;
@@ -101,6 +105,14 @@ const LedgerAda = function(comm) {
  * @throws 5201 - Non-hardened index passed in, Index < 0x80000000
  * @throws 5202 - Invalid header
  * @throws 5003 - Index not a number
+ *
+ * @example
+ * ada.getWalletPublicKeyWithIndex(0xC001CODE)
+ *  .then((response) => {
+ *    console.log(response.publicKey);
+ *  })
+ *  .catch(error => console.log(error));
+ *
  */
 LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
 
@@ -139,6 +151,13 @@ LedgerAda.prototype.getWalletPublicKeyWithIndex = function(index) {
  *
  * @return {Promise<{success:boolean, publicKey:string, chainCode:string }>} The result object containing the root wallet public key and chaincode.
  *
+ * @example
+ * ada.getWalletRecoveryPassphrase()
+ *  .then((response) => {
+ *    console.log(response.publicKey);
+ *    console.log(response.chainCode);
+ *  })
+ *  .catch(error => console.log(error));
  *
  */
 LedgerAda.prototype.getWalletRecoveryPassphrase = function() {
@@ -328,6 +347,15 @@ LedgerAda.prototype.signTransactionWithIndexes = function(indexes) {
  * @throws 5301 - Index < 0x80000000
  * @throws 5302 - Index > 0xFFFFFFFF
  * @throws 5003 - Index not a number
+ *
+ * @example
+ * const transaction = '839F8200D8185826825820E981442C2BE40475BB42193CA35907861D90715854DE6FCBA767B98F1789B51219439AFF9F8282D818584A83581CE7FE8E468D2249F18CD7BF9AEC0D4374B7D3E18609EDE8589F82F7F0A20058208200581C240596B9B63FC010C06FBE92CF6F820587406534795958C411E662DC014443C0688E001A6768CC861B0037699E3EA6D064FFA0';
+ * ada.signTransaction(transaction, [0xF005BA11])
+ *  .then((response) => {
+ *    console.log('Signed successfully: %s', response.digest);
+ *  })
+ *  .catch(error => console.log(error));
+ *
  */
 LedgerAda.prototype.signTransaction = function(txHex, indexes) {
     return this.setTransaction(txHex)
@@ -340,6 +368,15 @@ LedgerAda.prototype.signTransaction = function(txHex, indexes) {
  * containing the app version.
  *
  * @returns {Promise<{success:boolean, major:number, minor:number, patch:number}>} Result object containing the application version number.
+ *
+ * @example
+ * ada.isConnected()
+ *  .then((response) => {
+ *    const { major, minor, patch } = response;
+ *    console.log('App version %d.%d.%d: ', major, minor, patch);
+ *  })
+ *  .catch(error => console.log(error));
+ *
  */
 LedgerAda.prototype.isConnected = function() {
   var buffer = Buffer.alloc(LedgerAda.OFFSET_CDATA);
