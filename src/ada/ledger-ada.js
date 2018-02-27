@@ -373,7 +373,7 @@ LedgerAda.prototype.signTransaction = function(txHex, indexes) {
  * ada.isConnected()
  *  .then((response) => {
  *    const { major, minor, patch } = response;
- *    console.log('App version %d %d %d: ', major, minor, patch);
+ *    console.log('App version %d.%d.%d: ', major, minor, patch);
  *  })
  *  .catch(error => console.log(error));
  *
