@@ -1,4 +1,4 @@
-const ledger = require('../src/ada');
+const ledger = require('../src');
 
 ledger
 	.comm_node
@@ -91,7 +91,7 @@ ledger
 
 			*/
 
-/*
+
 		  var testIndex = 0xFFFFFFFF;
 			ada.getWalletPublicKeyWithIndex(testIndex).then(
 		     function(result) {
@@ -99,8 +99,10 @@ ledger
 					 console.log(result);
 				 }).fail(
 		     function(error) { console.log(error); });
-
+/*
 		 */
+
+
 /*
 		 ada.getWalletRecoveryPassphrase().then(
 				 function(result) {
@@ -110,6 +112,8 @@ ledger
 				 function(error) { console.log(error); });
 
 		 */
+
+
 /*
 			console.log("\n\n\nSTART - Set Transaction");
 			ada.setTransaction(testTX).then(
@@ -121,6 +125,8 @@ ledger
 
 			*/
 
+
+/*
 			var testIndex1 = 0x80000001;
 			var testIndex2 = 0x80000002;
 			console.log("\n\n\nSTART - Signing with index");
@@ -130,8 +136,10 @@ ledger
 							console.log("END - Signing Index\n\n\n");
 					}).fail(
 					function(error) { console.log(error); });
-/*
+
 			*/
+
+
 
 /*
 			console.log("\n\n\nSTART - Get App Info");

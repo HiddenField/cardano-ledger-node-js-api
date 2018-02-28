@@ -4,45 +4,17 @@ Create an application object after opening the device
 
 ```javascript
 var ada = new ledger.ada(comm);
+
+ada.getWalletPublicKeyWithIndex(0xC001CODE)
+ .then((response) => {
+   console.log(response.publicKey);
+ })
+ .catch(error => console.log(error));
 ```
 
-You can retrieve a public key and chain code given its BIP 32 path
+See LedgerAda class for full API.
 
-```javascript
-ada.getWalletPublicKey_async("44'/1815'/0'/0'/0'").then(
-     function(result) { console.log(result);}).fail(
-     function(error) { console.log(error); });
-```
-
-You can retrieve a random address' public key and chain code.
-This equates to "44'/1815'/[Wallet Index]'/0'/[Random_Index]'"
-
-```javascript
-ada.getRandomWalletPublicKey_async().then(
-				 function(result) { console.log(result);}).fail(
-				 function(error) { console.log(error); });
-```
-
-Or instead, you can pass in the address' index
-This would equate to "44'/1815'/[Wallet Index]'/0'/[Input_Address]'"
-
-```javascript
-var index = 0xFFFFFFFF;
-
-ada.getWalletPublicKeyFrom_async(index).then(
-				 function(result) { console.log(result);}).fail(
-				 function(error) { console.log(error); });
-```
-
-You can request the Wallet's Index
-
-```javascript
-ada.getWalletIndex_async().then(
-					function(result) { console.log(result);}).fail(
-					function(error) { console.log(error); });
-```
-
-## Building & Running Examples - Cardano SL
+## Install and Setup
 
 Node 6.11+ required. Suggest using a node version manager.
 
@@ -52,23 +24,13 @@ git clone [Project]
 npm install
 ```
 
-Building for Electron
+## Running examples
 
-```
-npm install --save electron-builder
-./node_modules/.bin/electron-builder
-npm install
-```
+Only production API calls work in the current examples.
 
-Changes required for Electron detection in LedgerCo node module - NOT PULLED
+Uncomment example and run `node examples/node-ada.js`
 
-src/index.js:
 
-```javascript
-    var isElectron = (window && window.process && window.process.type);
-    ...
-    if (isNode || isElectron) ledger.comm_node = require('./ledger-comm-node');
-```
 ## Testing Cardano SL
 
 End-to-end tests are provided for both core functionality and the public API.
@@ -105,3 +67,20 @@ This will suppress any additional prompts, for reduced verbosity.
 
 The address derivation method only allows hardened address derivation, i.e. the indexes must be > 0x80000000.
 Using indexes lower than 0x80000000 will hang the ledger application.
+
+## Troubleshooting
+
+### Running production API
+
+* `An error occurred:  No device found` :
+Ledger not connected; VM still running (host doesn't have USB); Have not unlocked device
+
+* `6e00`:App is not running on Ledger
+* `6d00`:API is not present (wrong build on device for intended API)
+
+### Running tests
+
+* `AssertionError: expected 'Invalid status 6e00'` : App not running
+* `npm ERR! Exit status 10` : Device not unlocked; Device not connected; VM still RUNNING
+* `'Invalid status 6d00'` : You are running the mismatched tests vs build, e.g. running core tests against production build
+* `Not all tests passing?` : You've broken something; running mismatched tests; not following test instructions, e.g. asked to reject transaction, but you approve.
