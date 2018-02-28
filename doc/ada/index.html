@@ -44,33 +44,20 @@
 
     <section>
         <article><h2>Using with Cardano SL</h2><p>Create an application object after opening the device</p>
-<pre class="prettyprint source lang-javascript"><code>var ada = new ledger.ada(comm);</code></pre><p>You can retrieve a public key and chain code given its BIP 32 path</p>
-<pre class="prettyprint source lang-javascript"><code>ada.getWalletPublicKey_async(&quot;44'/1815'/0'/0'/0'&quot;).then(
-     function(result) { console.log(result);}).fail(
-     function(error) { console.log(error); });</code></pre><p>You can retrieve a random address' public key and chain code.
-This equates to &quot;44'/1815'/[Wallet Index]'/0'/[Random_Index]'&quot;</p>
-<pre class="prettyprint source lang-javascript"><code>ada.getRandomWalletPublicKey_async().then(
-                 function(result) { console.log(result);}).fail(
-                 function(error) { console.log(error); });</code></pre><p>Or instead, you can pass in the address' index
-This would equate to &quot;44'/1815'/[Wallet Index]'/0'/[Input_Address]'&quot;</p>
-<pre class="prettyprint source lang-javascript"><code>var index = 0xFFFFFFFF;
+<pre class="prettyprint source lang-javascript"><code>var ada = new ledger.ada(comm);
 
-ada.getWalletPublicKeyFrom_async(index).then(
-                 function(result) { console.log(result);}).fail(
-                 function(error) { console.log(error); });</code></pre><p>You can request the Wallet's Index</p>
-<pre class="prettyprint source lang-javascript"><code>ada.getWalletIndex_async().then(
-                    function(result) { console.log(result);}).fail(
-                    function(error) { console.log(error); });</code></pre><h2>Building &amp; Running Examples - Cardano SL</h2><p>Node 6.11+ required. Suggest using a node version manager.</p>
+ada.getWalletPublicKeyWithIndex(0xC001CODE)
+ .then((response) => {
+   console.log(response.publicKey);
+ })
+ .catch(error => console.log(error));</code></pre><p>See LedgerAda class for full API.</p>
+<h2>Companion App</h2><p>This api is compatible with the <a href="https://github.com/HiddenField/ledger-cardano-app">Cardano Ledger App</a>.</p>
+<h2>Install and Setup</h2><p>Node 6.11+ required. Suggest using a node version manager.</p>
 <pre class="prettyprint source"><code>nvm 6.11.1 --lts
 git clone [Project]
-npm install</code></pre><p>Building for Electron</p>
-<pre class="prettyprint source"><code>npm install --save electron-builder
-./node_modules/.bin/electron-builder
-npm install</code></pre><p>Changes required for Electron detection in LedgerCo node module - NOT PULLED</p>
-<p>src/index.js:</p>
-<pre class="prettyprint source lang-javascript"><code>    var isElectron = (window && window.process && window.process.type);
-    ...
-    if (isNode || isElectron) ledger.comm_node = require('./ledger-comm-node');</code></pre><h2>Testing Cardano SL</h2><p>End-to-end tests are provided for both core functionality and the public API.</p>
+npm install</code></pre><h2>Running examples</h2><p>Only production API calls work in the current examples.</p>
+<p>Uncomment example and run <code>node examples/node-ada.js</code></p>
+<h2>Testing Cardano SL</h2><p>End-to-end tests are provided for both core functionality and the public API.</p>
 <h3>Core Tests</h3><p>First, ensure you have a <strong>test</strong> build installed on the device (see ledger app respository for details). Then run:</p>
 <pre class="prettyprint source lang-bash"><code>npm run ada-core-test</code></pre><h3>API Tests</h3><p>These tests can be run with or without device interaction (headlessly).</p>
 <p>For tests which require user interaction, ensure you have a standard production build on the device, and run:</p>
@@ -78,7 +65,22 @@ npm install</code></pre><p>Changes required for Electron detection in LedgerCo n
 <pre class="prettyprint source lang-bash"><code># Note the -- which is required to pass through arguments
 npm run ada-api-test -- --headless</code></pre><p>This will suppress any additional prompts, for reduced verbosity.</p>
 <h2>Notes for Cardano SL</h2><p>The address derivation method only allows hardened address derivation, i.e. the indexes must be &gt; 0x80000000.
-Using indexes lower than 0x80000000 will hang the ledger application.</p></article>
+Using indexes lower than 0x80000000 will hang the ledger application.</p>
+<h2>Generating JSDocs</h2><p><code>jsdoc -c src/ada/ada.jsdoc.conf.json</code></p>
+<h2>Troubleshooting</h2><h3>Running production API</h3><ul>
+<li><p><code>An error occurred:  No device found</code> :
+Ledger not connected; VM still running (host doesn't have USB); Have not unlocked device</p>
+</li>
+<li><p><code>6e00</code>:App is not running on Ledger</p>
+</li>
+<li><code>6d00</code>:API is not present (wrong build on device for intended API)</li>
+</ul>
+<h3>Running tests</h3><ul>
+<li><code>AssertionError: expected 'Invalid status 6e00'</code> : App not running</li>
+<li><code>npm ERR! Exit status 10</code> : Device not unlocked; Device not connected; VM still RUNNING</li>
+<li><code>'Invalid status 6d00'</code> : You are running the mismatched tests vs build, e.g. running core tests against production build</li>
+<li><code>Not all tests passing?</code> : You've broken something; running mismatched tests; not following test instructions, e.g. asked to reject transaction, but you approve.</li>
+</ul></article>
     </section>
 
 
@@ -95,7 +97,7 @@ Using indexes lower than 0x80000000 will hang the ledger application.</p></artic
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Feb 27 2018 21:08:56 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Feb 28 2018 17:50:13 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
