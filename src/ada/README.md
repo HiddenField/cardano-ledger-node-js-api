@@ -14,6 +14,10 @@ ada.getWalletPublicKeyWithIndex(0xC001CODE)
 
 See LedgerAda class for full API.
 
+## Companion App
+
+This api is compatible with the [Cardano Ledger App](https://github.com/HiddenField/ledger-cardano-app).
+
 ## Install and Setup
 
 Node 6.11+ required. Suggest using a node version manager.
