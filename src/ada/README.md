@@ -72,6 +72,10 @@ This will suppress any additional prompts, for reduced verbosity.
 The address derivation method only allows hardened address derivation, i.e. the indexes must be > 0x80000000.
 Using indexes lower than 0x80000000 will hang the ledger application.
 
+## Generating JSDocs
+
+`jsdoc -c src/ada/ada.jsdoc.conf.json`
+
 ## Troubleshooting
 
 ### Running production API
